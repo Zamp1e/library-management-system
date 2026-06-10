@@ -34,6 +34,7 @@ CREATE TABLE books (
     total       INT          NOT NULL DEFAULT 1 COMMENT '馆藏总数',
     available   INT          NOT NULL DEFAULT 1 COMMENT '可借数量',
     location    VARCHAR(100) DEFAULT '' COMMENT '馆藏位置',
+    cover       VARCHAR(500) DEFAULT '' COMMENT '封面URL',
     description TEXT         COMMENT '简介',
     created_at  DATE         NOT NULL COMMENT '入库日期'
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='图书表';
