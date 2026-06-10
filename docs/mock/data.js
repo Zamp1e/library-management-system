@@ -2,10 +2,10 @@ const MOCK = {
   currentUser: null,
 
   users: [
-    { id: 1, username: 'superadmin', password: '123456', role: 'super_admin', name: '张馆长', phone: '13800000001', email: 'zhang@lib.com', status: 1, createdAt: '2026-01-01' },
-    { id: 2, username: 'admin01', password: '123456', role: 'admin', name: '李管理员', phone: '13800000002', email: 'li@lib.com', status: 1, createdAt: '2026-02-01' },
-    { id: 3, username: 'reader01', password: '123456', role: 'reader', name: '王读者', phone: '13800000003', email: 'wang@qq.com', status: 1, createdAt: '2026-03-01' },
-    { id: 4, username: 'reader02', password: '123456', role: 'reader', name: '赵同学', phone: '13800000004', email: 'zhao@qq.com', status: 1, createdAt: '2026-03-15' },
+    { id: 1, username: 'admin', password: 'admin123', role: 'super_admin', name: '系统管理员', phone: '', email: '', status: 1, createdAt: '2026-06-08' },
+    { id: 2, username: 'librarian', password: 'lib123', role: 'admin', name: '图书管理员', phone: '', email: '', status: 1, createdAt: '2026-06-08' },
+    { id: 3, username: 'zhangsan', password: '123456', role: 'reader', name: '张三', phone: '', email: '', status: 1, createdAt: '2026-06-08' },
+    { id: 4, username: 'lisi', password: '123456', role: 'reader', name: '李四', phone: '', email: '', status: 1, createdAt: '2026-06-08' },
   ],
 
   books: [
@@ -20,13 +20,12 @@ const MOCK = {
   ],
 
   borrows: [
-    { id: 1, bookId: 1, userId: 3, bookTitle: 'Java核心技术 卷I', userName: '王读者', status: 'borrowed', borrowDate: '2026-05-01', dueDate: '2026-06-01', returnDate: null },
-    { id: 2, bookId: 2, userId: 3, bookTitle: 'Spring Boot实战', userName: '王读者', status: 'returned', borrowDate: '2026-04-15', dueDate: '2026-05-15', returnDate: '2026-05-10' },
-    { id: 3, bookId: 4, userId: 4, bookTitle: '深入理解Java虚拟机', userName: '赵同学', status: 'borrowed', borrowDate: '2026-05-20', dueDate: '2026-06-20', returnDate: null },
-    { id: 4, bookId: 5, userId: 4, bookTitle: 'MySQL必知必会', userName: '赵同学', status: 'returned', borrowDate: '2026-04-01', dueDate: '2026-05-01', returnDate: '2026-04-25' },
-    { id: 5, bookId: 6, userId: 4, bookTitle: '图解HTTP', userName: '赵同学', status: 'borrowed', borrowDate: '2026-06-01', dueDate: '2026-07-01', returnDate: null },
-    { id: 6, bookId: 4, userId: 3, bookTitle: '深入理解Java虚拟机', userName: '王读者', status: 'applying', borrowDate: '2026-06-10', dueDate: '2026-07-10', returnDate: null },
-    { id: 7, bookId: 1, userId: 3, bookTitle: 'Java核心技术 卷I', userName: '王读者', status: 'applying', borrowDate: '2026-05-01', dueDate: '2026-06-01', returnDate: null },
+    { id: 1, bookId: 1, userId: 3, bookTitle: 'Java核心技术 卷I', userName: '张三', status: 'borrowed', borrowDate: '2026-05-20', dueDate: '2026-06-20', returnDate: null },
+    { id: 2, bookId: 2, userId: 3, bookTitle: 'Spring Boot实战', userName: '张三', status: 'returned', borrowDate: '2026-05-01', dueDate: '2026-06-01', returnDate: '2026-05-28' },
+    { id: 3, bookId: 4, userId: 4, bookTitle: '深入理解Java虚拟机', userName: '李四', status: 'borrowed', borrowDate: '2026-06-01', dueDate: '2026-07-01', returnDate: null },
+    { id: 4, bookId: 5, userId: 4, bookTitle: 'MySQL必知必会', userName: '李四', status: 'returned', borrowDate: '2026-04-10', dueDate: '2026-05-10', returnDate: '2026-05-05' },
+    { id: 5, bookId: 6, userId: 4, bookTitle: '图解HTTP', userName: '李四', status: 'borrowed', borrowDate: '2026-06-05', dueDate: '2026-07-05', returnDate: null },
+    { id: 6, bookId: 3, userId: 3, bookTitle: '数据结构与算法分析', userName: '张三', status: 'applying', borrowDate: '2026-06-09', dueDate: '2026-07-09', returnDate: null },
   ],
 
   categories: ['计算机', '数据库', '网络', '文学', '历史', '科学', '数学', '外语', '哲学', '经济'],

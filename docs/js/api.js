@@ -47,11 +47,7 @@ function handleMock(method, url, data) {
       return { code: 200, data: { token, user: { id: u.id, username: u.username, role: u.role, name: u.name, phone: u.phone, email: u.email } } };
     }
     if (url.includes('register') && method === 'POST') {
-      const exist = M.users.find(x => x.username === data.username);
-      if (exist) return { code: 400, message: '用户名已存在' };
-      const newUser = { id: M._nextId(M.users), username: data.username, password: data.password, role: 'reader', name: data.name || data.username, phone: data.phone || '', email: data.email || '', status: 1, createdAt: new Date().toISOString().slice(0, 10) };
-      M.users.push(newUser);
-      return { code: 200, data: { id: newUser.id } };
+      return { code: 403, message: '注册已关闭，请联系管理员开通账号' };
     }
     if (url.includes('me') && method === 'GET') {
       const u = M.users[0];

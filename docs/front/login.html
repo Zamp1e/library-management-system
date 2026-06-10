@@ -21,9 +21,8 @@
     </div>
     <button type="submit" class="btn btn-primary">登 录</button>
   </form>
-  <p class="alt-link">没有账号？<a href="register.html">立即注册</a></p>
-  <p class="alt-link" style="margin-top:4px;"><a href="../admin/login.html" style="color:var(--text-secondary);font-size:.85rem;">管理员登录 →</a></p>
-  <p style="text-align:center;margin-top:12px;color:var(--text-secondary);font-size:.78rem;">演示账号：reader01 / 123456</p>
+  <p class="alt-link"><a href="../admin/login.html" style="color:var(--text-secondary);font-size:.85rem;">管理员登录 →</a></p>
+  <p style="text-align:center;margin-top:12px;color:var(--text-secondary);font-size:.78rem;">演示账号：zhangsan / 123456 &nbsp;|&nbsp; lisi / 123456</p>
 </div>
 <script src="../mock/data.js"></script>
 <script src="../js/api.js"></script>
@@ -32,11 +31,9 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   e.preventDefault();
   const username = document.getElementById('username').value;
   const password = document.getElementById('password').value;
-  const rolePatterns = { reader01: 'reader', reader02: 'reader', admin01: 'admin', superadmin: 'super_admin' };
-  const role = rolePatterns[username];
-  if (role && role !== 'reader') { showToast('请使用读者账号登录此页面', 'error'); return; }
   try {
     const res = await API.auth.login(username, password);
+    if (res.user.role !== 'reader') { showToast('请使用读者账号登录', 'error'); return; }
     localStorage.setItem('token', res.token);
     localStorage.setItem('user', JSON.stringify(res.user));
     showToast('登录成功', 'success');
