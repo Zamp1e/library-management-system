@@ -60,7 +60,6 @@
           <div class="form-group"><label>馆藏数量 *</label><input class="form-control" id="total" type="number" required></div>
           <div class="form-group"><label>馆藏位置</label><input class="form-control" id="location" placeholder="A区-3排-15号"></div>
         </div>
-        <div class="form-group"><label>封面图片URL</label><input class="form-control" id="cover" placeholder="留空显示默认图标"></div>
         <div class="form-group"><label>图书简介</label><textarea class="form-control" id="description" rows="3"></textarea></div>
       </form>
     </div>
@@ -124,7 +123,6 @@ async function openBookModal(id) {
     document.getElementById('price').value = book.price;
     document.getElementById('total').value = book.total;
     document.getElementById('location').value = book.location || '';
-    document.getElementById('cover').value = book.cover || '';
     document.getElementById('description').value = book.description || '';
   }
   document.getElementById('bookModal').classList.add('show');
@@ -143,7 +141,6 @@ async function saveBook() {
     price: parseFloat(document.getElementById('price').value),
     total: parseInt(document.getElementById('total').value),
     location: document.getElementById('location').value,
-    cover: document.getElementById('cover').value,
     description: document.getElementById('description').value,
   };
   if (!data.title || !data.author || !data.isbn) { showToast('请填写必填项', 'error'); return; }
