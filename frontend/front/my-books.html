@@ -34,7 +34,22 @@ initReader();
 async function init() {
   var user = JSON.parse(localStorage.getItem('reader_user') || '{}');
   var res = await API.borrows.list({ userId: user.id });
-  renderList(res.list);
+  var list = res.list || [];
+
+  // 读取 URL 参数预筛选
+  var params = new URLSearchParams(location.search);
+  var filterStatus = params.get('status');
+  if (filterStatus === 'borrowed') {
+    list = list.filter(function(b) { return b.status === 'borrowed'; });
+    document.querySelector('.main-header h2').textContent = '📖 借阅中';
+  } else if (filterStatus === 'dueSoon') {
+    var tomorrow = new Date(); tomorrow.setDate(tomorrow.getDate() + 2);
+    var limit = tomorrow.toISOString().slice(0, 10);
+    list = list.filter(function(b) { return b.status === 'borrowed' && b.dueDate <= limit; });
+    document.querySelector('.main-header h2').textContent = '⚠️ 临期应还';
+  }
+
+  renderList(list);
 }
 
 function renderList(list) {

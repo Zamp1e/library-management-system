@@ -78,6 +78,18 @@
 initAdmin();
 var currentTab = 'all';
 var expandedUsers = {};
+// 读取 URL 参数预筛选
+var urlParams = new URLSearchParams(location.search);
+var presetStatus = urlParams.get('status') || '';
+if (presetStatus === 'applying') currentTab = 'apply';
+if (presetStatus) {
+  setTimeout(function() {
+    var sf = document.getElementById('statusFilter');
+    if (presetStatus === 'overdue') { sf.value = 'borrowed'; }
+    else { sf.value = presetStatus; }
+    loadBorrows();
+  }, 50);
+}
 
 document.getElementById('tabNav').addEventListener('click', function(e) {
   if (!e.target.dataset.tab) return;
@@ -106,6 +118,11 @@ async function loadAllTab() {
 
   var filtered = res.list || [];
   if (statusFilter) filtered = filtered.filter(function(b) { return b.status === statusFilter; });
+  // 逾期筛选：借阅中 + 已过应还日期
+  if (presetStatus === 'overdue') {
+    var today = new Date().toISOString().slice(0, 10);
+    filtered = filtered.filter(function(b) { return b.status === 'borrowed' && b.dueDate < today; });
+  }
   if (searchUser) filtered = filtered.filter(function(b) { return (b.userName || '').toLowerCase().includes(searchUser); });
 
   // 按用户分组

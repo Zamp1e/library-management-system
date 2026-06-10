@@ -69,8 +69,8 @@ async function loadReaderStats() {
     // Count all borrowed items due within 2 days as "临期"
     var dueSoonWarn = list.filter(function(b) { return b.status === 'borrowed' && b.dueDate <= tmStr; }).length;
     document.getElementById('readerStats').innerHTML =
-      '<a href="my-books.html" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-icon orange">📥</div><div class="stat-info"><div class="stat-value">' + borrowing + '</div><div class="stat-label">当前借阅中</div></div></a>' +
-      '<a href="my-books.html" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-icon ' + (dueSoonWarn > 0 ? 'red' : 'blue') + '">⚠️</div><div class="stat-info"><div class="stat-value">' + dueSoonWarn + '</div><div class="stat-label">临期应还（2天内）</div></div></a>';
+      '<a href="my-books.html?status=borrowed" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-icon orange">📥</div><div class="stat-info"><div class="stat-value">' + borrowing + '</div><div class="stat-label">当前借阅中</div></div></a>' +
+      '<a href="my-books.html?status=dueSoon" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-icon ' + (dueSoonWarn > 0 ? 'red' : 'blue') + '">⚠️</div><div class="stat-info"><div class="stat-value">' + dueSoonWarn + '</div><div class="stat-label">临期应还（2天内）</div></div></a>';
   } catch(e) {}
 }
 

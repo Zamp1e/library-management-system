@@ -33,8 +33,8 @@ async function loadStats() {
   document.getElementById('statGrid').innerHTML =
     '<a href="books.html" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-icon blue">📚</div><div class="stat-info"><div class="stat-value">' + stats.totalBooks + '</div><div class="stat-label">馆藏图书总数</div></div></a>' +
     '<a href="readers.html" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-icon green">👥</div><div class="stat-info"><div class="stat-value">' + stats.totalReaders + '</div><div class="stat-label">注册读者数</div></div></a>' +
-    '<a href="borrows.html" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-icon orange">📥</div><div class="stat-info"><div class="stat-value">' + stats.borrowing + '</div><div class="stat-label">当前借阅中</div></div></a>' +
-    '<a href="borrows.html" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-icon red">⚠️</div><div class="stat-info"><div class="stat-value">' + stats.overdue + '</div><div class="stat-label">逾期未还</div></div></a>';
+    '<a href="borrows.html?status=borrowed" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-icon orange">📥</div><div class="stat-info"><div class="stat-value">' + stats.borrowing + '</div><div class="stat-label">当前借阅中</div></div></a>' +
+    '<a href="borrows.html?status=overdue" class="stat-card" style="text-decoration:none;color:inherit"><div class="stat-icon red">⚠️</div><div class="stat-info"><div class="stat-value">' + stats.overdue + '</div><div class="stat-label">逾期未还</div></div></a>';
   renderTrend(stats.borrowingTrend);
   renderCategory(stats.categoryDist);
 }
