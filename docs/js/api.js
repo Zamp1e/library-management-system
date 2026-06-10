@@ -7,7 +7,11 @@ const BASE_URL = 'http://localhost:8080/api';
 async function request(method, url, data) {
   if (USE_MOCK) {
     console.log('[Mock]', method, url, data);
-    return new Promise(resolve => setTimeout(() => resolve(handleMock(method, url, data)), 300));
+    return new Promise((resolve, reject) => setTimeout(() => {
+      const result = handleMock(method, url, data);
+      if (result.code !== 200) reject(new Error(result.message || '请求失败'));
+      else resolve(result.data);
+    }, 300));
   }
   const opts = {
     method,
