@@ -3,14 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>图书管理系统 - 首页</title>
+<title>图书管理系统 - 图书检索</title>
 <link rel="stylesheet" href="../css/style.css">
 <style>
 .book-list { display: flex; flex-direction: column; gap: 2px; background: var(--border); border-radius: var(--radius-lg); overflow: hidden; }
-.book-row {
-  display: flex; align-items: center; gap: 16px;
-  background: var(--bg-card); padding: 14px 18px;
-}
+.book-row { display: flex; align-items: center; gap: 16px; background: var(--bg-card); padding: 14px 18px; }
 .book-row:hover { background: #f8f9fd; }
 .book-main { flex: 1; min-width: 0; }
 .book-main h4 { font-size: .95rem; margin-bottom: 4px; }
@@ -26,111 +23,77 @@
 </style>
 </head>
 <body>
-<header class="front-header">
-  <a href="index.html" class="logo">📚 图书馆</a>
-  <nav>
-    <a href="index.html">图书检索</a>
-    <a href="my-books.html">我的借阅</a>
-    <span class="user-area">
-      <span id="userName"></span>
-      <button class="btn btn-sm" style="background:rgba(255,255,255,.2);color:#fff;" onclick="logout()">退出</button>
-    </span>
-  </nav>
-</header>
-<div class="front-main">
-  <div class="search-bar">
-    <input type="text" class="form-control" id="keyword" placeholder="输入书名、作者或ISBN搜索...">
-    <select class="form-control" id="categoryFilter" onchange="search()"><option value="">全部分类</option></select>
-    <button class="btn btn-primary" onclick="search()">🔍 搜索</button>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <div class="main-header"><h2>🔍 图书检索</h2><span></span></div>
+    <div class="main-content">
+      <div class="search-bar">
+        <input type="text" class="form-control" id="keyword" placeholder="输入书名、作者或ISBN搜索...">
+        <select class="form-control" id="categoryFilter" onchange="search()"><option value="">全部分类</option></select>
+        <button class="btn btn-primary" onclick="search()">🔍 搜索</button>
+      </div>
+      <div class="book-list" id="bookList"></div>
+      <div class="pagination" id="pagination"></div>
+    </div>
   </div>
-  <div class="book-list" id="bookList"></div>
-  <div class="pagination" id="pagination"></div>
 </div>
 <div class="toast-container"></div>
 <script src="../mock/data.js"></script>
 <script src="../js/api.js"></script>
+<script src="common.js"></script>
 <script>
-let currentPage = 1, pageSize = 10, allBooks = [];
+initReader();
+var currentPage = 1, pageSize = 10, allBooks = [];
 
 function init() {
-  const user = JSON.parse(localStorage.getItem('reader_user') || '{}');
-  if (!user.id || user.role !== 'reader') { location.href = 'login.html'; return; }
-  document.getElementById('userName').textContent = user.name || user.username;
-  const cats = MOCK.categories;
-  const sel = document.getElementById('categoryFilter');
-  cats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+  var cats = MOCK.categories;
+  var sel = document.getElementById('categoryFilter');
+  cats.forEach(function(c) { var o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
   search();
 }
 
 async function search() {
-  const keyword = document.getElementById('keyword').value;
-  const category = document.getElementById('categoryFilter').value;
-  const res = await API.books.list({ keyword, category });
+  var keyword = document.getElementById('keyword').value;
+  var category = document.getElementById('categoryFilter').value;
+  var res = await API.books.list({ keyword: keyword, category: category });
   allBooks = res.list;
   currentPage = 1;
   renderBooks();
 }
 
 function renderBooks() {
-  const start = (currentPage - 1) * pageSize;
-  const items = allBooks.slice(start, start + pageSize);
-  const el = document.getElementById('bookList');
+  var start = (currentPage - 1) * pageSize;
+  var items = allBooks.slice(start, start + pageSize);
+  var el = document.getElementById('bookList');
   if (items.length === 0) { el.innerHTML = '<div class="empty-row"><div class="empty-state"><div class="icon">📭</div><p>暂无图书</p></div></div>'; document.getElementById('pagination').innerHTML = ''; return; }
-  el.innerHTML = items.map(b => `
-    <div class="book-row">
-      <div class="book-main">
-        <h4><a href="book-detail.html?id=${b.id}">${b.title}</a></h4>
-        <div class="meta">
-          作者：${b.author} &nbsp;|&nbsp; 出版社：${b.publisher} &nbsp;|&nbsp; ISBN：${b.isbn}
-          &nbsp;|&nbsp; <span class="badge badge-info">${b.category}</span>
-          &nbsp;|&nbsp; 位置：${b.location || '-'} &nbsp;|&nbsp; 价格：¥${b.price.toFixed(2)}
-        </div>
-      </div>
-      <div class="book-stock">
-        <div class="num" style="color:${b.available > 0 ? 'var(--success)' : 'var(--danger)'}">${b.available} / ${b.total}</div>
-        <div class="lbl">可借 / 馆藏</div>
-      </div>
-      <div class="book-actions">
-        <a href="book-detail.html?id=${b.id}" class="btn btn-sm btn-outline">查看详情</a>
-        ${b.available > 0
-          ? `<button class="btn btn-sm btn-primary" onclick="borrowBook(${b.id}, '${b.title.replace(/'/g, "\\'")}')">立即借阅</button>`
-          : `<button class="btn btn-sm" disabled style="opacity:.5">暂无可借</button>`}
-      </div>
-    </div>
-  `).join('');
+  el.innerHTML = items.map(function(b) {
+    return '<div class="book-row"><div class="book-main"><h4><a href="book-detail.html?id=' + b.id + '">' + b.title + '</a></h4><div class="meta">作者：' + b.author + ' &nbsp;|&nbsp; 出版社：' + b.publisher + ' &nbsp;|&nbsp; ISBN：' + b.isbn + ' &nbsp;|&nbsp; <span class="badge badge-info">' + b.category + '</span> &nbsp;|&nbsp; 位置：' + (b.location || '-') + ' &nbsp;|&nbsp; 价格：¥' + b.price.toFixed(2) + '</div></div><div class="book-stock"><div class="num" style="color:' + (b.available > 0 ? 'var(--success)' : 'var(--danger)') + '">' + b.available + ' / ' + b.total + '</div><div class="lbl">可借 / 馆藏</div></div><div class="book-actions"><a href="book-detail.html?id=' + b.id + '" class="btn btn-sm btn-outline">查看详情</a>' + (b.available > 0 ? '<button class="btn btn-sm btn-primary" onclick="borrowBook(' + b.id + ', \'' + b.title.replace(/'/g, "\\'") + '\')">立即借阅</button>' : '<button class="btn btn-sm" disabled style="opacity:.5">暂无可借</button>') + '</div></div>';
+  }).join('');
   renderPagination();
 }
 
 function renderPagination() {
-  const total = Math.ceil(allBooks.length / pageSize);
-  const el = document.getElementById('pagination');
+  var total = Math.ceil(allBooks.length / pageSize);
+  var el = document.getElementById('pagination');
   if (total <= 1) { el.innerHTML = ''; return; }
-  let html = `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})">«</button>`;
-  for (let i = 1; i <= total; i++) { html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`; }
-  html += `<button ${currentPage === total ? 'disabled' : ''} onclick="goPage(${currentPage + 1})">»</button>`;
+  var html = '<button ' + (currentPage === 1 ? 'disabled' : '') + ' onclick="goPage(' + (currentPage - 1) + ')">«</button>';
+  for (var i = 1; i <= total; i++) { html += '<button class="' + (i === currentPage ? 'active' : '') + '" onclick="goPage(' + i + ')">' + i + '</button>'; }
+  html += '<button ' + (currentPage === total ? 'disabled' : '') + ' onclick="goPage(' + (currentPage + 1) + ')">»</button>';
   el.innerHTML = html;
 }
 
 function goPage(p) { currentPage = p; renderBooks(); window.scrollTo(0, 0); }
 
 async function borrowBook(bookId, title) {
-  const user = JSON.parse(localStorage.getItem('reader_user') || '{}');
-  const dueDate = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  var user = JSON.parse(localStorage.getItem('reader_user') || '{}');
+  var dueDate = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
   try {
-    await API.borrows.create({ bookId, userId: user.id, userName: user.name, dueDate });
-    showToast(`《${title}》借阅申请已提交，等待管理员审核`, 'success');
-    setTimeout(() => location.reload(), 800);
+    await API.borrows.create({ bookId: bookId, userId: user.id, userName: user.name, dueDate: dueDate });
+    showToast('《' + title + '》借阅申请已提交，等待管理员审核', 'success');
+    setTimeout(function() { location.reload(); }, 800);
   } catch (err) { showToast(err.message, 'error'); }
 }
-
-function showToast(msg, type) {
-  const container = document.querySelector('.toast-container') || (() => { const c = document.createElement('div'); c.className = 'toast-container'; document.body.appendChild(c); return c; })();
-  const toast = document.createElement('div'); toast.className = 'toast toast-' + type; toast.textContent = msg;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-function logout() { localStorage.removeItem('reader_token'); localStorage.removeItem('reader_user'); location.href = 'login.html'; }
 
 init();
 </script>

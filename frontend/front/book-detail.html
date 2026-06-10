@@ -7,90 +7,60 @@
 <link rel="stylesheet" href="../css/style.css">
 </head>
 <body>
-<header class="front-header">
-  <a href="index.html" class="logo">📚 图书馆</a>
-  <nav>
-    <a href="index.html">图书检索</a>
-    <a href="my-books.html">我的借阅</a>
-    <span class="user-area">
-      <span id="userName"></span>
-      <button class="btn btn-sm" style="background:rgba(255,255,255,.2);color:#fff;" onclick="logout()">退出</button>
-    </span>
-  </nav>
-</header>
-<div class="front-main">
-  <div id="bookDetail">
-    <p style="text-align:center;padding:40px;color:var(--text-secondary);">加载中...</p>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <div class="main-header"><h2>📖 图书详情</h2><span></span></div>
+    <div class="main-content">
+      <a href="index.html" style="display:inline-block;margin-bottom:16px;">← 返回列表</a>
+      <div id="bookDetail"><p style="text-align:center;padding:40px;color:var(--text-secondary);">加载中...</p></div>
+    </div>
   </div>
 </div>
 <div class="toast-container"></div>
 <script src="../mock/data.js"></script>
 <script src="../js/api.js"></script>
+<script src="common.js"></script>
 <script>
+initReader();
+
 async function init() {
-  const user = JSON.parse(localStorage.getItem('reader_user') || '{}');
-  if (!user.id) { location.href = 'login.html'; return; }
-  document.getElementById('userName').textContent = user.name || user.username;
-  const params = new URLSearchParams(location.search);
-  const id = parseInt(params.get('id'));
+  var params = new URLSearchParams(location.search);
+  var id = parseInt(params.get('id'));
   if (!id) { location.href = 'index.html'; return; }
   try {
-    const book = await API.books.detail(id);
-    renderBook(book, user);
+    var book = await API.books.detail(id);
+    renderBook(book);
   } catch (err) { document.getElementById('bookDetail').innerHTML = '<p style="text-align:center;padding:40px;color:var(--danger);">图书不存在</p>'; }
 }
 
-function renderBook(book, user) {
-  document.getElementById('bookDetail').innerHTML = `
-    <a href="index.html" style="display:inline-block;margin-bottom:16px;">← 返回列表</a>
-    <div class="detail-card">
-      <h2>${book.title}</h2>
-      <div class="detail-grid">
-        <div class="detail-item"><span class="lbl">作者</span><span class="val">${book.author}</span></div>
-        <div class="detail-item"><span class="lbl">出版社</span><span class="val">${book.publisher}</span></div>
-        <div class="detail-item"><span class="lbl">ISBN</span><span class="val">${book.isbn}</span></div>
-        <div class="detail-item"><span class="lbl">分类</span><span class="badge badge-info">${book.category}</span></div>
-        <div class="detail-item"><span class="lbl">价格</span><span class="val">¥${book.price.toFixed(2)}</span></div>
-        <div class="detail-item"><span class="lbl">馆藏位置</span><span class="val">${book.location || '-'}</span></div>
-        <div class="detail-item"><span class="lbl">馆藏数量</span><span class="val">${book.total} 本</span></div>
-        <div class="detail-item">
-          <span class="lbl">可借状态</span>
-          <span class="badge ${book.available > 0 ? 'badge-success' : 'badge-danger'}">
-            ${book.available > 0 ? '可借（剩余' + book.available + '本）' : '已全部借出'}
-          </span>
-        </div>
-      </div>
-      <div class="detail-desc">
-        <h4>图书简介</h4>
-        <p>${book.description || '暂无简介'}</p>
-      </div>
-      <div class="detail-actions">
-        ${book.available > 0
-          ? `<button class="btn btn-primary" onclick="borrowBook(${book.id}, '${book.title.replace(/'/g, "\\'")}')">📥 立即借阅</button>`
-          : `<button class="btn btn-outline" disabled>暂不可借</button>`}
-        <button class="btn btn-outline" onclick="history.back()">返回</button>
-      </div>
-    </div>
-  `;
+function renderBook(book) {
+  document.getElementById('bookDetail').innerHTML =
+    '<div class="detail-card"><h2>' + book.title + '</h2>'
+    + '<div class="detail-grid">'
+    + '<div class="detail-item"><span class="lbl">作者</span><span class="val">' + book.author + '</span></div>'
+    + '<div class="detail-item"><span class="lbl">出版社</span><span class="val">' + book.publisher + '</span></div>'
+    + '<div class="detail-item"><span class="lbl">ISBN</span><span class="val">' + book.isbn + '</span></div>'
+    + '<div class="detail-item"><span class="lbl">分类</span><span class="badge badge-info">' + book.category + '</span></div>'
+    + '<div class="detail-item"><span class="lbl">价格</span><span class="val">¥' + book.price.toFixed(2) + '</span></div>'
+    + '<div class="detail-item"><span class="lbl">馆藏位置</span><span class="val">' + (book.location || '-') + '</span></div>'
+    + '<div class="detail-item"><span class="lbl">馆藏数量</span><span class="val">' + book.total + ' 本</span></div>'
+    + '<div class="detail-item"><span class="lbl">可借状态</span><span class="badge ' + (book.available > 0 ? 'badge-success' : 'badge-danger') + '">' + (book.available > 0 ? '可借（剩余' + book.available + '本）' : '已全部借出') + '</span></div>'
+    + '</div>'
+    + '<div class="detail-desc"><h4>图书简介</h4><p>' + (book.description || '暂无简介') + '</p></div>'
+    + '<div class="detail-actions">' + (book.available > 0 ? '<button class="btn btn-primary" onclick="borrowBook(' + book.id + ', \'' + book.title.replace(/'/g, "\\'") + '\')">📥 立即借阅</button>' : '<button class="btn btn-outline" disabled>暂不可借</button>') + ' <button class="btn btn-outline" onclick="history.back()">返回</button></div>'
+    + '</div>';
 }
 
 async function borrowBook(bookId, title) {
-  const user = JSON.parse(localStorage.getItem('reader_user') || '{}');
-  const dueDate = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  var user = JSON.parse(localStorage.getItem('reader_user') || '{}');
+  var dueDate = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
   try {
-    await API.borrows.create({ bookId, userId: user.id, userName: user.name, dueDate });
-    showToast(`《${title}》借阅申请已提交，等待管理员审核`, 'success');
+    await API.borrows.create({ bookId: bookId, userId: user.id, userName: user.name, dueDate: dueDate });
+    showToast('《' + title + '》借阅申请已提交，等待管理员审核', 'success');
   } catch (err) { showToast(err.message, 'error'); }
 }
 
-function showToast(msg, type) {
-  const container = document.querySelector('.toast-container') || (() => { const c = document.createElement('div'); c.className = 'toast-container'; document.body.appendChild(c); return c; })();
-  const toast = document.createElement('div'); toast.className = 'toast toast-' + type; toast.textContent = msg;
-  container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
-}
-
-function logout() { localStorage.removeItem('reader_token'); localStorage.removeItem('reader_user'); location.href = 'login.html'; }
 init();
 </script>
 </body>
