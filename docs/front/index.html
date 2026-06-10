@@ -40,7 +40,7 @@
 <div class="front-main">
   <div class="search-bar">
     <input type="text" class="form-control" id="keyword" placeholder="输入书名、作者或ISBN搜索...">
-    <select class="form-control" id="categoryFilter"><option value="">全部分类</option></select>
+    <select class="form-control" id="categoryFilter" onchange="search()"><option value="">全部分类</option></select>
     <button class="btn btn-primary" onclick="search()">🔍 搜索</button>
   </div>
   <div class="book-list" id="bookList"></div>
