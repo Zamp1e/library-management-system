@@ -114,6 +114,8 @@ function handleMock(method, url, data) {
       const book = M.books.find(x => x.id === data.bookId);
       if (!book) return { code: 404, message: '图书不存在' };
       if (book.available <= 0) return { code: 400, message: '图书已全部借出' };
+      // 申请时立即扣库存，防止多人同时借最后一本
+      book.available = Math.max(0, book.available - 1);
       const b = { id: M._nextId(M.borrows), bookId: data.bookId, userId: data.userId, status: 'applying', borrowDate: new Date().toISOString().slice(0, 10), dueDate: data.dueDate || '', returnDate: null };
       M.borrows.push(b); M.save();
       return { code: 200, data: enrich(b) };
@@ -122,15 +124,21 @@ function handleMock(method, url, data) {
       const idx = M.borrows.findIndex(x => x.id === id);
       if (idx === -1) return { code: 404 };
       if (data.status) {
+        const oldStatus = M.borrows[idx].status; // 保存旧状态
         M.borrows[idx].status = data.status;
         const book = M.books.find(x => x.id === M.borrows[idx].bookId);
-        if (data.status === 'borrowed' && book) { book.available = Math.max(0, book.available - 1); }
-        if ((data.status === 'returned' || data.status === 'rejected') && book) {
-          const wasApproved = M.borrows[idx].status === 'borrowed' || M.borrows[idx].status === 'applying';
-          if (wasApproved && data.status === 'returned') book.available = Math.min(book.total, book.available + 1);
-          if (data.status === 'rejected' && M.borrows[idx].status === 'applying') { /* no stock change */ }
+        if (data.status === 'borrowed' && book) {
+          // 库存已在申请时扣减，批准时不重复扣
         }
-        if (data.status === 'returned') M.borrows[idx].returnDate = new Date().toISOString().slice(0, 10);
+        if (data.status === 'rejected' && oldStatus === 'applying' && book) {
+          // 拒绝申请：还原库存
+          book.available = Math.min(book.total, book.available + 1);
+        }
+        if (data.status === 'returned' && oldStatus === 'borrowed' && book) {
+          // 归还：还原库存
+          book.available = Math.min(book.total, book.available + 1);
+          M.borrows[idx].returnDate = new Date().toISOString().slice(0, 10);
+        }
       }
       M.save();
       return { code: 200, data: enrich(M.borrows[idx]) };

@@ -71,6 +71,10 @@ public class BorrowService {
         if (user.getStatus() == 0)
             throw new RuntimeException("账号已被禁用");
 
+        // 申请时立即扣库存，防止多人同时借最后一本
+        book.setAvailable(Math.max(0, book.getAvailable() - 1));
+        bookRepo.save(book);
+
         Borrow b = new Borrow();
         b.setBookId(bookId);
         b.setUserId(userId);
@@ -92,8 +96,12 @@ public class BorrowService {
         Book book = bookRepo.findById(b.getBookId())
             .orElseThrow(() -> new RuntimeException("图书不存在"));
 
-        if ("borrowed".equals(status) && "applying".equals(b.getStatus())) {
-            book.setAvailable(book.getAvailable() - 1);
+        // 库存已在申请时扣减，批准时不重复扣
+        // if ("borrowed".equals(status)) → no stock change
+
+        if ("rejected".equals(status) && "applying".equals(b.getStatus())) {
+            // 拒绝申请：还原库存
+            book.setAvailable(Math.min(book.getTotal(), book.getAvailable() + 1));
             bookRepo.save(book);
         }
         if ("returned".equals(status) && "borrowed".equals(b.getStatus())) {

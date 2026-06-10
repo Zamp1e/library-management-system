@@ -5,6 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>后台管理 - 借阅管理</title>
 <link rel="stylesheet" href="../css/style.css">
+<style>
+.toolbar { display: flex; gap: 8px; margin-bottom: 14px; }
+.toolbar select { width: 120px; }
+.toolbar input { flex: 1; min-width: 140px; }
+
+.user-group { background: var(--bg-card); border: 1px solid var(--border); border-radius: var(--radius); margin-bottom: 8px; overflow: hidden; }
+.user-group-header {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px 16px; cursor: pointer; user-select: none;
+  transition: background .15s;
+}
+.user-group-header:hover { background: #f8f9fd; }
+.user-group-header .avatar { width: 34px; height: 34px; border-radius: 50%; background: var(--primary); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: .9rem; flex-shrink: 0; }
+.user-group-header .info { flex: 1; min-width: 0; }
+.user-group-header .info .name { font-weight: 600; font-size: .92rem; }
+.user-group-header .info .meta { font-size: .76rem; color: var(--text-secondary); }
+.user-group-header .arrow { font-size: 1rem; color: var(--text-secondary); transition: transform .2s; }
+.user-group.open .user-group-header .arrow { transform: rotate(90deg); }
+.user-group-body { display: none; border-top: 1px solid var(--border); }
+.user-group.open .user-group-body { display: block; }
+.user-group-body table { margin: 0; }
+.user-group-body th { font-size: .82rem; padding: 8px 16px; }
+.user-group-body td { font-size: .85rem; padding: 8px 16px; }
+</style>
 </head>
 <body>
 <div class="layout">
@@ -13,15 +37,33 @@
     <div class="main-header"><h2>📥 借阅管理</h2><span></span></div>
     <div class="main-content">
       <div class="card">
-        <div class="tab-nav">
-          <button class="tab-btn active" onclick="switchTab('apply')">待审核</button>
-          <button class="tab-btn" onclick="switchTab('all')">全部记录</button>
+        <div class="tab-nav" id="tabNav">
+          <button class="tab-btn active" data-tab="all">全部记录</button>
+          <button class="tab-btn" data-tab="apply">待审核</button>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>图书名称</th><th>借阅人</th><th>借阅日期</th><th>应还日期</th><th>归还日期</th><th>状态</th><th>操作</th></tr></thead>
-            <tbody id="borrowTable"></tbody>
-          </table>
+
+        <div id="tabAll">
+          <div class="toolbar">
+            <select class="form-control" id="statusFilter" onchange="loadBorrows()">
+              <option value="">全部状态</option>
+              <option value="applying">审核中</option>
+              <option value="borrowed">借阅中</option>
+              <option value="returned">已归还</option>
+              <option value="rejected">已拒绝</option>
+            </select>
+            <input type="text" class="form-control" id="searchUser" placeholder="搜索用户名..." oninput="loadBorrows()">
+            <button class="btn btn-primary" onclick="loadBorrows()">🔍</button>
+          </div>
+          <div id="groupedList"></div>
+        </div>
+
+        <div id="tabApply" style="display:none;">
+          <div class="table-wrap">
+            <table>
+              <thead><tr><th>ID</th><th>图书名称</th><th>借阅人</th><th>借阅日期</th><th>应还日期</th><th>操作</th></tr></thead>
+              <tbody id="applyTable"></tbody>
+            </table>
+          </div>
         </div>
       </div>
     </div>
@@ -33,40 +75,122 @@
 <script src="common.js"></script>
 <script>
 initAdmin();
-let currentTab = 'apply';
+var currentTab = 'all';
+var expandedUsers = {};
+
+document.getElementById('tabNav').addEventListener('click', function(e) {
+  if (!e.target.dataset.tab) return;
+  currentTab = e.target.dataset.tab;
+  document.querySelectorAll('.tab-btn').forEach(function(b) { b.classList.toggle('active', b.dataset.tab === currentTab); });
+  document.getElementById('tabAll').style.display = currentTab === 'all' ? '' : 'none';
+  document.getElementById('tabApply').style.display = currentTab === 'apply' ? '' : 'none';
+  loadBorrows();
+});
+
+// 页面打开立即加载
 loadBorrows();
 
-async function loadBorrows() {
-  const params = currentTab === 'apply' ? { status: 'applying' } : {};
-  const res = await API.borrows.list(params);
-  const list = res.list;
-  const statusMap = { applying: { text: '审核中', cls: 'badge-info' }, borrowed: { text: '借阅中', cls: 'badge-warning' }, returned: { text: '已归还', cls: 'badge-success' }, rejected: { text: '已拒绝', cls: 'badge-danger' } };
-  document.getElementById('borrowTable').innerHTML = list.length === 0
-    ? '<tr><td colspan="8"><div class="empty-state"><div class="icon">📭</div><p>暂无记录</p></div></td></tr>'
-    : list.map(b => {
-      const s = statusMap[b.status] || { text: b.status, cls: '' };
-      return `<tr>
-        <td>${b.id}</td><td><strong>${b.bookTitle}</strong></td><td>${b.userName}</td>
-        <td>${b.borrowDate}</td><td>${b.dueDate}</td><td>${b.returnDate || '-'}</td>
-        <td><span class="badge ${s.cls}">${s.text}</span></td>
-        <td>${b.status === 'applying' ? `<button class="btn btn-sm btn-success" onclick="approve(${b.id})">通过</button> <button class="btn btn-sm btn-danger" onclick="reject(${b.id})">拒绝</button>` : b.status === 'borrowed' ? `<button class="btn btn-sm btn-primary" onclick="returnBook(${b.id})">确认归还</button>` : ''}</td>
-      </tr>`;
-    }).join('');
+function loadBorrows() {
+  if (currentTab === 'apply') { loadApplyTab(); return; }
+  loadAllTab();
 }
 
-async function approve(id) { await API.borrows.approve(id); showToast('借阅申请已通过', 'success'); loadBorrows(); }
-async function reject(id) { await API.borrows.reject(id); showToast('已拒绝该申请', 'info'); loadBorrows(); }
+// ======== 全部记录 ========
+async function loadAllTab() {
+  try {
+    var res = await API.borrows.list({});
+  } catch(e) { return; }
+  var statusFilter = document.getElementById('statusFilter').value;
+  var searchUser = document.getElementById('searchUser').value.toLowerCase();
 
+  var filtered = res.list || [];
+  if (statusFilter) filtered = filtered.filter(function(b) { return b.status === statusFilter; });
+  if (searchUser) filtered = filtered.filter(function(b) { return (b.userName || '').toLowerCase().includes(searchUser); });
+
+  // 按用户分组
+  var groups = {};
+  filtered.forEach(function(b) {
+    var key = b.userId;
+    if (!groups[key]) groups[key] = { userId: b.userId, userName: b.userName || '未知用户', items: [] };
+    groups[key].items.push(b);
+  });
+  var groupList = Object.values(groups);
+  groupList.sort(function(a, b) { return a.userName.localeCompare(b.userName); });
+
+  // 首次加载默认全部展开
+  groupList.forEach(function(g) {
+    if (typeof expandedUsers[g.userId] === 'undefined') expandedUsers[g.userId] = true;
+  });
+
+  var statusMap = { applying: { text: '审核中', cls: 'badge-info' }, borrowed: { text: '借阅中', cls: 'badge-warning' }, returned: { text: '已归还', cls: 'badge-success' }, rejected: { text: '已拒绝', cls: 'badge-danger' } };
+
+  document.getElementById('groupedList').innerHTML = groupList.length === 0
+    ? '<div class="empty-state"><div class="icon">📭</div><p>暂无记录</p></div>'
+    : groupList.map(function(g) {
+        var uid = g.userId;
+        var isOpen = expandedUsers[uid];
+        var borrowedCount = g.items.filter(function(x) { return x.status === 'borrowed'; }).length;
+        var applyingCount = g.items.filter(function(x) { return x.status === 'applying'; }).length;
+        var parts = [g.items.length + '条记录'];
+        if (borrowedCount > 0) parts.push('<span style="color:var(--danger);">' + borrowedCount + '本未归还</span>');
+        if (applyingCount > 0) parts.push(applyingCount + '条待审核');
+        return '<div class="user-group' + (isOpen ? ' open' : '') + '" id="group-' + uid + '">'
+          + '<div class="user-group-header" onclick="toggleGroup(' + uid + ', this)">'
+          + '<div class="avatar">' + (g.userName[0] || '?') + '</div>'
+          + '<div class="info"><div class="name">' + g.userName + '</div>'
+          + '<div class="meta">' + parts.join(' &nbsp;|&nbsp; ') + '</div></div>'
+          + '<div class="arrow">▶</div></div>'
+          + '<div class="user-group-body"><table><thead><tr><th>ID</th><th>图书名称</th><th>借阅日期</th><th>应还日期</th><th>归还日期</th><th>状态</th><th>操作</th></tr></thead><tbody>'
+          + g.items.sort(function(a, b) { return b.id - a.id; }).map(function(b) {
+              var s = statusMap[b.status] || { text: b.status, cls: '' };
+              var actions = '';
+              if (b.status === 'applying') {
+                actions = '<button class="btn btn-sm btn-success" onclick="event.stopPropagation();approve(' + b.id + ')">通过</button> '
+                        + '<button class="btn btn-sm btn-danger" onclick="event.stopPropagation();rejectBorrow(' + b.id + ')">拒绝</button>';
+              } else if (b.status === 'borrowed') {
+                actions = '<button class="btn btn-sm btn-primary" onclick="event.stopPropagation();returnBook(' + b.id + ')">确认归还</button>';
+              }
+              return '<tr><td>' + b.id + '</td><td><strong>' + b.bookTitle + '</strong></td><td>' + b.borrowDate + '</td><td>' + b.dueDate + '</td><td>' + (b.returnDate || '-') + '</td>'
+                + '<td><span class="badge ' + s.cls + '">' + s.text + '</span></td><td>' + actions + '</td></tr>';
+            }).join('') + '</tbody></table></div></div>';
+      }).join('');
+}
+
+function toggleGroup(uid, header) {
+  expandedUsers[uid] = !expandedUsers[uid];
+  header.parentElement.classList.toggle('open', expandedUsers[uid]);
+}
+
+// ======== 待审核 ========
+async function loadApplyTab() {
+  try {
+    var res = await API.borrows.list({ status: 'applying' });
+  } catch(e) { return; }
+  var list = res.list || [];
+  document.getElementById('applyTable').innerHTML = list.length === 0
+    ? '<tr><td colspan="6"><div class="empty-state"><div class="icon">📭</div><p>暂无待审核申请</p></div></td></tr>'
+    : list.sort(function(a, b) { return b.id - a.id; }).map(function(b) {
+        return '<tr><td>' + b.id + '</td><td><strong>' + b.bookTitle + '</strong></td><td>' + b.userName + '</td><td>' + b.borrowDate + '</td><td>' + b.dueDate + '</td>'
+          + '<td><button class="btn btn-sm btn-success" onclick="approve(' + b.id + ')">批准</button> '
+          + '<button class="btn btn-sm btn-danger" onclick="rejectBorrow(' + b.id + ')">拒绝</button></td></tr>';
+      }).join('');
+}
+
+// ======== 操作 ========
+async function approve(id) {
+  await API.borrows.approve(id);
+  showToast('借阅申请已通过', 'success');
+  loadBorrows();
+}
+async function rejectBorrow(id) {
+  await API.borrows.reject(id);
+  showToast('已拒绝该申请', 'info');
+  loadBorrows();
+}
 async function returnBook(id) {
   if (!confirm('确认该图书已归还？')) return;
   await API.borrows.returnBook(id);
   showToast('归还确认成功', 'success');
-  loadBorrows();
-}
-
-function switchTab(tab) {
-  currentTab = tab;
-  document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', (i === 0 && tab === 'apply') || (i === 1 && tab === 'all')));
   loadBorrows();
 }
 </script>
