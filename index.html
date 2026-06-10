@@ -7,148 +7,153 @@
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
 <style>
 :root {
-  --ink: #1a1a2e;
-  --card: #fff;
-  --text: #1a1b26;
-  --text2: #6b6d7b;
-  --border: #e8e9ef;
-  --accent: #4c5fd5;
+  --ink: #1a1a2e; --card: #fff; --text: #1a1b26; --text2: #6b6d7b;
+  --border: #e8e9ef; --accent: #4c5fd5; --accent-bg: #eef0ff;
+  --green: #0d8c4a; --green-bg: #e8f5ee;
+  --orange: #d48900; --orange-bg: #fef4e8;
+  --red: #c53030; --red-bg: #fef0ef;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", serif;
-  background: #f5f3ef;
-  color: var(--text);
-  min-height: 100vh;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  -webkit-font-smoothing: antialiased;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+  background: #f5f3ef; color: var(--text);
+  min-height: 100vh; -webkit-font-smoothing: antialiased;
 }
 
-/* Background bookshelf texture */
+/* Background */
 body::before {
-  content: '';
-  position: fixed; inset: 0;
+  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
   background:
-    repeating-linear-gradient(90deg, transparent, transparent 119px, rgba(0,0,0,.03) 119px, rgba(0,0,0,.03) 120px),
+    repeating-linear-gradient(90deg, transparent, transparent 119px, rgba(0,0,0,.025) 119px, rgba(0,0,0,.025) 120px),
     linear-gradient(180deg, #f5f3ef 0%, #ebe7e0 100%);
-  pointer-events: none; z-index: 0;
 }
 
-.container {
-  position: relative; z-index: 1;
-  max-width: 520px; width: 90%;
-  padding: 48px 0;
-}
+.wrap { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 40px 20px 60px; }
 
-/* Header */
-.header {
-  text-align: center; margin-bottom: 40px;
-  animation: fadeUp .6s cubic-bezier(.16,1,.3,1) both;
-}
-.header .books {
-  display: flex; justify-content: center; gap: 4px; margin-bottom: 24px;
-}
-.header .books span {
-  display: inline-flex; align-items: center; justify-content: center;
-  width: 44px; height: 64px; border-radius: 4px 4px 2px 2px;
-  font-size: 1.3rem; font-weight: 700; color: #fff;
+/* ====== Header ====== */
+.header { text-align: center; margin-bottom: 36px; }
+.books { display: flex; justify-content: center; gap: 4px; margin-bottom: 20px; }
+.books span {
+  width: 40px; height: 58px; border-radius: 4px 4px 2px 2px;
+  font-size: 1.2rem; font-weight: 700; color: #fff; display: inline-flex;
+  align-items: center; justify-content: center;
   box-shadow: 0 2px 8px rgba(0,0,0,.1);
   transition: transform .3s cubic-bezier(.16,1,.3,1);
+  animation: bookIn .5s cubic-bezier(.16,1,.3,1) both;
 }
-.header .books span:nth-child(1) { background: #4c5fd5; animation: bookIn .5s .1s cubic-bezier(.16,1,.3,1) both; }
-.header .books span:nth-child(2) { background: #e84855; animation: bookIn .5s .18s cubic-bezier(.16,1,.3,1) both; }
-.header .books span:nth-child(3) { background: #0d8c4a; animation: bookIn .5s .26s cubic-bezier(.16,1,.3,1) both; }
-.header .books span:nth-child(4) { background: #d48900; animation: bookIn .5s .34s cubic-bezier(.16,1,.3,1) both; }
-.header .books span:nth-child(5) { background: #7c5ce0; animation: bookIn .5s .42s cubic-bezier(.16,1,.3,1) both; }
-.header .books span:hover { transform: translateY(-6px) scale(1.05); }
-@keyframes bookIn {
-  from { opacity: 0; transform: translateY(20px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.books span:nth-child(1) { background: #4c5fd5; animation-delay: .1s; }
+.books span:nth-child(2) { background: #e84855; animation-delay: .18s; }
+.books span:nth-child(3) { background: #0d8c4a; animation-delay: .26s; }
+.books span:nth-child(4) { background: #d48900; animation-delay: .34s; }
+.books span:nth-child(5) { background: #7c5ce0; animation-delay: .42s; }
+.books span:hover { transform: translateY(-6px) scale(1.05); }
+@keyframes bookIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
-.header h1 {
-  font-size: 2rem; font-weight: 700;
-  letter-spacing: -.02em; color: var(--ink);
-  margin-bottom: 8px;
-}
-.header .tagline {
-  font-size: .9rem; color: var(--text2);
-  font-weight: 400;
-}
+.header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -.02em; color: var(--ink); margin-bottom: 6px; }
+.header .tagline { font-size: .88rem; color: var(--text2); }
 
-/* Cards */
-.links {
-  display: flex; flex-direction: column; gap: 10px;
-}
-.link-card {
-  display: flex; align-items: center; gap: 16px;
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: 16px;
-  padding: 20px 24px;
-  text-decoration: none; color: inherit;
+/* ====== Entry Cards ====== */
+.entry { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 32px; }
+.entry .card {
+  display: flex; align-items: center; gap: 14px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+  padding: 18px 22px; text-decoration: none; color: inherit;
   transition: all .25s cubic-bezier(.16,1,.3,1);
-  position: relative; overflow: hidden;
   animation: fadeUp .5s cubic-bezier(.16,1,.3,1) both;
 }
-.link-card:nth-child(1) { animation-delay: .15s; }
-.link-card:nth-child(2) { animation-delay: .25s; }
-.link-card:nth-child(3) { animation-delay: .35s; }
-.link-card:hover {
-  transform: translateX(4px);
-  border-color: var(--accent);
-  box-shadow: 0 4px 20px rgba(76,95,213,.1);
-}
-.link-card::after {
-  content: '→'; font-size: 1.1rem; color: #c0c3d0;
-  margin-left: auto; transition: all .25s;
-}
-.link-card:hover::after {
-  color: var(--accent); transform: translateX(4px);
-}
+.entry .card:nth-child(1) { animation-delay: .2s; }
+.entry .card:nth-child(2) { animation-delay: .3s; }
+.entry .card:hover { transform: translateX(3px); border-color: var(--accent); box-shadow: 0 4px 20px rgba(76,95,213,.1); }
+.entry .card .ic { font-size: 1.8rem; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; flex-shrink: 0; }
+.entry .card .ic.reader { background: var(--accent-bg); }
+.entry .card .ic.admin { background: var(--orange-bg); }
+.entry .card .info h3 { font-size: .95rem; font-weight: 600; letter-spacing: -.01em; }
+.entry .card .info span { font-size: .72rem; color: var(--text2); background: #f1f3f6; padding: 2px 7px; border-radius: 8px; }
 
-.link-card .icon {
-  font-size: 2rem; width: 52px; height: 52px;
-  display: flex; align-items: center; justify-content: center;
-  border-radius: 12px; flex-shrink: 0;
-}
-.link-card .icon.reader { background: #eef0ff; }
-.link-card .icon.admin { background: #fef4e8; }
-.link-card .icon.docs { background: #eef5f0; }
+@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
 
-.link-card .info { flex: 1; min-width: 0; }
-.link-card .info h3 { font-size: 1rem; font-weight: 600; letter-spacing: -.01em; margin-bottom: 3px; }
-.link-card .info p { font-size: .8rem; color: var(--text2); line-height: 1.4; }
-
-.link-card .tag {
-  display: inline-block; padding: 2px 8px; border-radius: 10px;
-  font-size: .68rem; font-weight: 600; letter-spacing: .02em;
-  background: #f1f3f6; color: var(--text2); margin-top: 4px;
+/* ====== Tech Stack ====== */
+.section-title { font-size: .82rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin: 28px 0 12px; }
+.stack { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+.stack .chip {
+  padding: 6px 14px; border-radius: 20px; font-size: .8rem; font-weight: 500;
+  background: var(--card); border: 1px solid var(--border);
+  animation: fadeUp .4s cubic-bezier(.16,1,.3,1) both;
 }
+.stack .chip:nth-child(1) { animation-delay: .35s; } .stack .chip:nth-child(2) { animation-delay: .38s; }
+.stack .chip:nth-child(3) { animation-delay: .41s; } .stack .chip:nth-child(4) { animation-delay: .44s; }
+.stack .chip:nth-child(5) { animation-delay: .47s; } .stack .chip:nth-child(6) { animation-delay: .5s; }
+.stack .chip:nth-child(7) { animation-delay: .53s; } .stack .chip:nth-child(8) { animation-delay: .56s; }
 
-/* Footer */
-.footer {
-  text-align: center; margin-top: 32px;
-  font-size: .78rem; color: var(--text2);
-  animation: fadeUp .5s .45s cubic-bezier(.16,1,.3,1) both;
+/* ====== Tabs ====== */
+.tabs { display: flex; gap: 0; margin-bottom: 16px; }
+.tab {
+  padding: 8px 18px; border: none; background: none; cursor: pointer;
+  font-size: .82rem; font-weight: 500; color: var(--text2);
+  border-bottom: 2px solid transparent; transition: .2s;
 }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-panel { display: none; animation: fadeUp .35s cubic-bezier(.16,1,.3,1) both; }
+.tab-panel.active { display: block; }
+
+/* ====== Visual Cards ====== */
+.arch-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
+.arch-box {
+  padding: 12px 18px; border-radius: 12px; text-align: center;
+  font-size: .78rem; font-weight: 500; line-height: 1.4;
+  animation: fadeUp .4s cubic-bezier(.16,1,.3,1) both;
+}
+.arch-box.strong { background: var(--accent); color: #fff; font-size: .9rem; min-width: 70px; }
+.arch-box.mid { background: var(--card); border: 1px solid var(--border); min-width: 90px; }
+.arch-box.sub { background: #f8f9fd; border: 1px dashed var(--border); font-size: .72rem; }
+.arch-arrow { color: var(--text2); font-size: 1.2rem; font-weight: 300; }
+
+/* ====== API Table ====== */
+.api-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.api-row {
+  display: flex; align-items: center; gap: 8px;
+  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
+  padding: 8px 12px; font-size: .76rem;
+  animation: fadeUp .35s cubic-bezier(.16,1,.3,1) both;
+}
+.api-row .method {
+  font-size: .65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;
+  min-width: 36px; text-align: center; letter-spacing: .04em;
+}
+.api-row .method.get { background: var(--green-bg); color: var(--green); }
+.api-row .method.post { background: var(--orange-bg); color: var(--orange); }
+.api-row .method.put { background: var(--accent-bg); color: var(--accent); }
+.api-row .method.del { background: var(--red-bg); color: var(--red); }
+.api-row .path { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: "SF Mono","Fira Code",monospace; font-size: .74rem; }
+
+/* ====== DB Table ====== */
+.db-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+.db-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; font-size: .78rem;
+  animation: fadeUp .4s cubic-bezier(.16,1,.3,1) both;
+}
+.db-card:nth-child(1) { animation-delay: .05s; }
+.db-card:nth-child(2) { animation-delay: .12s; }
+.db-card:nth-child(3) { animation-delay: .19s; }
+.db-card h4 { font-size: .82rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
+.db-card h4 .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
+.db-card h4 .dot.u { background: var(--accent); }
+.db-card h4 .dot.b { background: var(--green); }
+.db-card h4 .dot.br { background: var(--orange); }
+.db-card p { color: var(--text2); font-size: .72rem; line-height: 1.6; }
+
+/* ====== Footer ====== */
+.footer { text-align: center; margin-top: 36px; font-size: .75rem; color: var(--text2); animation: fadeUp .5s .6s cubic-bezier(.16,1,.3,1) both; }
 .footer a { color: var(--accent); text-decoration: none; }
-.footer a:hover { text-decoration: underline; }
-.footer .dot { margin: 0 6px; opacity: .4; }
 
-@keyframes fadeUp {
-  from { opacity: 0; transform: translateY(16px); }
-  to { opacity: 1; transform: translateY(0); }
-}
-
-@media (max-width: 480px) {
+@media (max-width: 600px) {
+  .entry { grid-template-columns: 1fr; }
+  .api-grid { grid-template-columns: 1fr; }
+  .db-grid { grid-template-columns: 1fr; }
+  .arch-row { gap: 6px; }
   .header h1 { font-size: 1.5rem; }
-  .link-card { padding: 16px 18px; border-radius: 14px; }
-  .link-card .icon { width: 44px; height: 44px; font-size: 1.6rem; }
-  .header .books span { width: 36px; height: 52px; font-size: 1rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -158,52 +163,139 @@ body::before {
 </head>
 <body>
 
-<div class="container">
+<div class="wrap">
+
+  <!-- ====== Header ====== -->
   <header class="header">
-    <div class="books">
-      <span>📖</span><span>📕</span><span>📗</span><span>📘</span><span>📙</span>
-    </div>
+    <div class="books"><span>📖</span><span>📕</span><span>📗</span><span>📘</span><span>📙</span></div>
     <h1>图书管理系统</h1>
     <p class="tagline">Library Management System</p>
   </header>
 
-  <div class="links">
-    <a href="frontend/front/index.html" class="link-card">
-      <div class="icon reader">👤</div>
-      <div class="info">
-        <h3>读者端</h3>
-        <p>图书检索 · 在线借阅 · 借阅历史</p>
-        <span class="tag">zhangsan / 123456</span>
-      </div>
+  <!-- ====== Quick Entry ====== -->
+  <div class="entry">
+    <a href="frontend/front/index.html" class="card">
+      <div class="ic reader">👤</div>
+      <div class="info"><h3>读者端</h3><span>zhangsan / 123456</span></div>
     </a>
-
-    <a href="frontend/admin/index.html" class="link-card">
-      <div class="icon admin">🔑</div>
-      <div class="info">
-        <h3>管理端</h3>
-        <p>仪表盘 · 图书管理 · 借阅审批</p>
-        <span class="tag">admin / admin123</span>
-      </div>
-    </a>
-
-    <a href="PROJECT_STRUCTURE.md" class="link-card">
-      <div class="icon docs">📋</div>
-      <div class="info">
-        <h3>项目结构文档</h3>
-        <p>快速了解项目架构与技术细节</p>
-        <span class="tag">README</span>
-      </div>
+    <a href="frontend/admin/index.html" class="card">
+      <div class="ic admin">🔑</div>
+      <div class="info"><h3>管理端</h3><span>admin / admin123</span></div>
     </a>
   </div>
 
+  <!-- ====== Tech Stack ====== -->
+  <div class="section-title">🛠 技术栈</div>
+  <div class="stack">
+    <span class="chip">Spring Boot 3.2</span><span class="chip">Java 17</span>
+    <span class="chip">MySQL 8.0</span><span class="chip">Spring Data JPA</span>
+    <span class="chip">BCrypt</span><span class="chip">Maven</span>
+    <span class="chip">原生 HTML/CSS/JS</span><span class="chip">SVG 图表</span>
+  </div>
+
+  <!-- ====== Tabs ====== -->
+  <div class="section-title">📋 项目详情</div>
+  <div class="tabs" id="tabs">
+    <button class="tab active" data-panel="arch">架构</button>
+    <button class="tab" data-panel="api">API</button>
+    <button class="tab" data-panel="db">数据库</button>
+    <button class="tab" data-panel="flow">借阅流程</button>
+  </div>
+
+  <!-- Architecture Panel -->
+  <div class="tab-panel active" id="panel-arch">
+    <div class="arch-row">
+      <div class="arch-box strong">浏览器</div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box mid">前端<br>HTML/CSS/JS</div>
+      <span class="arch-arrow">⇄</span>
+      <div class="arch-box mid">REST API<br>:8080</div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box mid">Service<br>业务层</div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box mid">JPA<br>Repository</div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box strong">MySQL<br>8.0</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-box sub">5 个 Controller</div>
+      <div class="arch-box sub">4 个 Service</div>
+      <div class="arch-box sub">3 个 Entity</div>
+      <div class="arch-box sub">3 张数据表</div>
+      <div class="arch-box sub">11 个前端页面</div>
+    </div>
+  </div>
+
+  <!-- API Panel -->
+  <div class="tab-panel" id="panel-api">
+    <div class="api-grid">
+      <div class="api-row"><span class="method post">POST</span><span class="path">/api/auth/login</span></div>
+      <div class="api-row"><span class="method get">GET</span><span class="path">/api/books?keyword=&category=</span></div>
+      <div class="api-row"><span class="method get">GET</span><span class="path">/api/books/{id}</span></div>
+      <div class="api-row"><span class="method post">POST</span><span class="path">/api/books</span></div>
+      <div class="api-row"><span class="method put">PUT</span><span class="path">/api/books/{id}</span></div>
+      <div class="api-row"><span class="method del">DEL</span><span class="path">/api/books/{id}</span></div>
+      <div class="api-row"><span class="method get">GET</span><span class="path">/api/borrows?userId=&status=</span></div>
+      <div class="api-row"><span class="method post">POST</span><span class="path">/api/borrows</span></div>
+      <div class="api-row"><span class="method put">PUT</span><span class="path">/api/borrows/{id}</span></div>
+      <div class="api-row"><span class="method get">GET</span><span class="path">/api/users?role=&keyword=</span></div>
+      <div class="api-row"><span class="method post">POST</span><span class="path">/api/users</span></div>
+      <div class="api-row"><span class="method get">GET</span><span class="path">/api/stats/overview</span></div>
+    </div>
+  </div>
+
+  <!-- Database Panel -->
+  <div class="tab-panel" id="panel-db">
+    <div class="db-grid">
+      <div class="db-card">
+        <h4><span class="dot u"></span>users 用户表</h4>
+        <p>id · username · password(BCrypt)<br>role(super_admin/admin/reader)<br>name · phone · status · created_at</p>
+      </div>
+      <div class="db-card">
+        <h4><span class="dot b"></span>books 图书表</h4>
+        <p>id · isbn · title · author<br>publisher · category · price<br>total · available · location</p>
+      </div>
+      <div class="db-card">
+        <h4><span class="dot br"></span>borrows 借阅表</h4>
+        <p>id · book_id(FK) · user_id(FK)<br>status(applying→borrowed→returned)<br>borrow_date · due_date · return_date</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Flow Panel -->
+  <div class="tab-panel" id="panel-flow">
+    <div class="arch-row" style="justify-content:center;">
+      <div class="arch-box mid" style="text-align:center;">📖 读者申请<br><small style="color:var(--text2)">available -1</small></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box sub">审核中<br>applying</div>
+      <span class="arch-arrow">⇢</span>
+      <div class="arch-box" style="background:var(--green-bg);border:1px solid var(--green);">✅ 批准<br><small>borrowed</small></div>
+      <span class="arch-arrow">→</span>
+      <div class="arch-box mid">📥 归还<br><small style="color:var(--text2)">available +1</small></div>
+    </div>
+    <div class="arch-row" style="justify-content:center;margin-top:8px;">
+      <span style="font-size:.78rem;color:var(--text2);text-align:center;">
+        ❌ 拒绝 → available +1（还原）&nbsp;&nbsp;|&nbsp;&nbsp;
+        所有操作 @Transactional 事务保护
+      </span>
+    </div>
+  </div>
+
+  <!-- ====== Footer ====== -->
   <footer class="footer">
-    <span>MySQL 8.0</span><span class="dot">·</span>
-    <span>Spring Boot 3.2</span><span class="dot">·</span>
-    <span>Java 17</span>
-    <br>
     <a href="https://github.com/Zamp1e/library-management-system">GitHub</a>
+    &nbsp;·&nbsp;答辩演示就绪
   </footer>
 </div>
 
+<script>
+document.getElementById('tabs').addEventListener('click', function(e) {
+  if (!e.target.classList.contains('tab')) return;
+  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  e.target.classList.add('active');
+  document.getElementById('panel-' + e.target.dataset.panel).classList.add('active');
+});
+</script>
 </body>
 </html>
