@@ -40,68 +40,55 @@ async function loadStats() {
 
 // ====== SVG 柱状图：借阅趋势 ======
 function renderTrend(data) {
-  var W = 560, H = 280;
-  var pad = {top:30, right:30, bottom:50, left:50};
-  var cw = W - pad.left - pad.right;
-  var ch = H - pad.top - pad.bottom;
-  var barW = 44;
-  var gap = (cw - barW * data.length) / (data.length + 1);
+  var W = 480, H = 260, pad = {top:20, right:20, bottom:40, left:40};
+  var cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom;
+  var barW = 40, gap = (cw - barW * data.length) / (data.length + 1);
   var max = Math.max.apply(null, data.map(function(d){return d.count;}));
   max = Math.max(max, 1);
-  var ticks = 5;
 
-  var svg = '';
-  // Grid + Y-axis labels
-  for (var i = 0; i <= ticks; i++) {
-    var y = pad.top + (ch * i / ticks);
-    var v = Math.round(max * (ticks - i) / ticks);
-    svg += '<line x1="' + pad.left + '" y1="' + y + '" x2="' + (W - pad.right) + '" y2="' + y + '" stroke="#e8e0d4" stroke-width="0.8" stroke-dasharray="4,4"/>';
-    svg += '<text x="' + (pad.left - 10) + '" y="' + (y + 4) + '" text-anchor="end" font-family="Georgia,serif" font-size="12" fill="#a09888">' + v + '</text>';
+  var bars = '';
+  var labels = '';
+  var lines = '';
+  // 网格线
+  for (var i = 0; i <= 4; i++) {
+    var y = pad.top + ch * i / 4;
+    var v = Math.round(max * (4 - i) / 4);
+    lines += '<line x1="' + pad.left + '" y1="' + y + '" x2="' + (W - pad.right) + '" y2="' + y + '" stroke="#eee" stroke-width="1"/>';
+    lines += '<text x="' + (pad.left - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="11" fill="#888">' + v + '</text>';
   }
-  // Bars
-  var earthtones = ['#8b7355','#a0896c','#6b8a5e','#5b7a4c','#8b6b5e','#7b8a6e'];
   for (var i = 0; i < data.length; i++) {
-    var h = Math.max(ch * data[i].count / max, 4);
+    var h = ch * data[i].count / max;
     var x = pad.left + gap + i * (barW + gap);
     var y = pad.top + ch - h;
-    svg += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + h + '" rx="5" fill="' + earthtones[i] + '" opacity="0.88"/>';
-    svg += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="5" rx="5" fill="' + earthtones[i] + '" opacity="0.4"/>';
-    svg += '<text x="' + (x + barW/2) + '" y="' + (y - 8) + '" text-anchor="middle" font-family="Georgia,serif" font-size="13" font-weight="700" fill="#5b4c38">' + data[i].count + '</text>';
-    svg += '<text x="' + (x + barW/2) + '" y="' + (H - 12) + '" text-anchor="middle" font-family="Georgia,serif" font-size="12" fill="#a09888">' + data[i].month + '</text>';
+    var hue = 210 + i * 15;
+    bars += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + h + '" rx="4" fill="hsl(' + hue + ',70%,55%)"/>';
+    bars += '<text x="' + (x + barW/2) + '" y="' + (y - 6) + '" text-anchor="middle" font-size="12" font-weight="600" fill="#333">' + data[i].count + '</text>';
+    labels += '<text x="' + (x + barW/2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="11" fill="#888">' + data[i].month + '</text>';
   }
-  // Baseline
-  svg += '<line x1="' + pad.left + '" y1="' + (pad.top + ch) + '" x2="' + (W - pad.right) + '" y2="' + (pad.top + ch) + '" stroke="#d5cbbb" stroke-width="1"/>';
 
   document.getElementById('trendChart').innerHTML =
-    '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:100%;" preserveAspectRatio="xMidYMid meet">' + svg + '</svg>';
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:100%;" preserveAspectRatio="xMidYMid meet">' + lines + bars + labels + '</svg>';
 }
 
 // ====== SVG 横向柱状图：分类分布 ======
 function renderCategory(data) {
   data.sort(function(a,b){return b.value - a.value;});
-  var rowH = 32, pad = 10;
-  var H = data.length * rowH + pad * 2;
-  var W = 340, barX = 56, barMax = W - barX - 40;
-  var colors = ['#8b7355','#6b8a5e','#a0896c','#5b7a4c','#8b6b5e','#7b8a6e','#9b8b75','#6b7a5e','#a0806c','#7b6b5e'];
+  var H = data.length * 36 + 10, W = 320, barH = 22;
+  var colors = ['#1a73e8','#0d904f','#f5a623','#d93025','#8e24aa','#00acc1','#6c757d','#20c997','#fd7e14','#6610f2'];
   var max = Math.max.apply(null, data.map(function(d){return d.value;}));
   max = Math.max(max, 1);
 
-  var svg = '';
+  var bars = '';
   for (var i = 0; i < data.length; i++) {
-    var y = pad + i * rowH;
-    var w = Math.max(barMax * data[i].value / max, 6);
-    // Background track
-    svg += '<rect x="' + barX + '" y="' + (y + 6) + '" width="' + barMax + '" height="16" rx="8" fill="#f0ebe0"/>';
-    // Bar
-    svg += '<rect x="' + barX + '" y="' + (y + 6) + '" width="' + w + '" height="16" rx="8" fill="' + colors[i % colors.length] + '" opacity="0.85"/>';
-    // Label
-    svg += '<text x="' + (barX - 8) + '" y="' + (y + 19) + '" text-anchor="end" font-family="Georgia,serif" font-size="12" fill="#5b4c38">' + data[i].name + '</text>';
-    // Value
-    svg += '<text x="' + (barX + w + 8) + '" y="' + (y + 19) + '" font-family="Georgia,serif" font-size="12" font-weight="700" fill="#5b4c38">' + data[i].value + '</text>';
+    var y = i * 36 + 8;
+    var w = (W - 80) * data[i].value / max;
+    bars += '<text x="0" y="' + (y + 16) + '" font-size="12" fill="#555">' + data[i].name + '</text>';
+    bars += '<rect x="50" y="' + y + '" width="' + w + '" height="' + barH + '" rx="3" fill="' + colors[i % colors.length] + '"/>';
+    bars += '<text x="' + (52 + w) + '" y="' + (y + 16) + '" font-size="12" font-weight="600" fill="#333">' + data[i].value + '</text>';
   }
 
   document.getElementById('categoryChart').innerHTML =
-    '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:100%;" preserveAspectRatio="xMidYMid meet">' + svg + '</svg>';
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:100%;" preserveAspectRatio="xMidYMid meet">' + bars + '</svg>';
 }
 </script>
 </body>
