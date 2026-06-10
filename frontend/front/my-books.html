@@ -60,6 +60,7 @@ function renderList(list) {
     var s = statusMap[b.status] || { text: b.status, cls: '' };
     return '<tr><td><a href="book-detail.html?id=' + b.bookId + '">' + b.bookTitle + '</a></td><td>' + b.borrowDate + '</td><td>' + b.dueDate + '</td><td>' + (b.returnDate || '-') + '</td><td><span class="badge ' + s.cls + '">' + s.text + '</span></td><td>' + (b.status === 'borrowed' ? '<button class="btn btn-sm btn-success" onclick="returnBook(' + b.id + ')">归还</button>' : '') + '</td></tr>';
   }).join('');
+  staggerRows('#borrowList tr');
 }
 
 async function returnBook(id) {

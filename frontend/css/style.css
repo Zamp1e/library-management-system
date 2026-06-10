@@ -447,33 +447,15 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 .stat-card:nth-child(3) { animation-delay: .19s; }
 .stat-card:nth-child(4) { animation-delay: .26s; }
 
-/* Book / item rows stagger */
-.book-row, .user-group {
+/* Book / item rows — dynamic stagger via JS: data-delay="0.03" */
+.book-row.in-view, .user-group.in-view {
   animation: fadeInUp .35s cubic-bezier(.16, 1, .3, 1) both;
 }
-.book-row:nth-child(1), .user-group:nth-child(1) { animation-delay: .03s; }
-.book-row:nth-child(2), .user-group:nth-child(2) { animation-delay: .07s; }
-.book-row:nth-child(3), .user-group:nth-child(3) { animation-delay: .11s; }
-.book-row:nth-child(4), .user-group:nth-child(4) { animation-delay: .15s; }
-.book-row:nth-child(5), .user-group:nth-child(5) { animation-delay: .19s; }
-.book-row:nth-child(6), .user-group:nth-child(6) { animation-delay: .23s; }
-.book-row:nth-child(7), .user-group:nth-child(7) { animation-delay: .27s; }
-.book-row:nth-child(8), .user-group:nth-child(8) { animation-delay: .31s; }
-.book-row:nth-child(9), .user-group:nth-child(9) { animation-delay: .35s; }
-.book-row:nth-child(10), .user-group:nth-child(10) { animation-delay: .39s; }
 
-/* Table row entrance */
-table tbody tr {
+/* Table row — dynamic stagger via JS */
+table tbody tr.in-view {
   animation: fadeIn .3s cubic-bezier(.16, 1, .3, 1) both;
 }
-table tbody tr:nth-child(1) { animation-delay: .03s; }
-table tbody tr:nth-child(2) { animation-delay: .07s; }
-table tbody tr:nth-child(3) { animation-delay: .11s; }
-table tbody tr:nth-child(4) { animation-delay: .15s; }
-table tbody tr:nth-child(5) { animation-delay: .19s; }
-table tbody tr:nth-child(6) { animation-delay: .23s; }
-table tbody tr:nth-child(7) { animation-delay: .27s; }
-table tbody tr:nth-child(8) { animation-delay: .31s; }
 
 /* Modal entrance */
 .modal-overlay.show {

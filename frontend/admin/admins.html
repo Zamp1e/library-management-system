@@ -77,6 +77,7 @@ async function loadAdmins() {
         <button class="btn btn-sm btn-outline" onclick="openAdminModal(${u.id})">编辑</button>
         <button class="btn btn-sm btn-danger" onclick="deleteAdmin(${u.id}, '${u.name}')">删除</button>
       </td></tr>`).join('');
+  staggerRows('#adminTable tbody tr');
 }
 
 async function openAdminModal(id) {

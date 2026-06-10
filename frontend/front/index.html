@@ -92,6 +92,7 @@ function renderBooks() {
     return '<div class="book-row"><div class="book-main"><h4><a href="book-detail.html?id=' + b.id + '">' + b.title + '</a></h4><div class="meta">作者：' + b.author + ' &nbsp;|&nbsp; 出版社：' + b.publisher + ' &nbsp;|&nbsp; ISBN：' + b.isbn + ' &nbsp;|&nbsp; <span class="badge badge-info">' + b.category + '</span> &nbsp;|&nbsp; 位置：' + (b.location || '-') + ' &nbsp;|&nbsp; 价格：¥' + b.price.toFixed(2) + '</div></div><div class="book-stock"><div class="num" style="color:' + (b.available > 0 ? 'var(--success)' : 'var(--danger)') + '">' + b.available + ' / ' + b.total + '</div><div class="lbl">可借 / 馆藏</div></div><div class="book-actions"><a href="book-detail.html?id=' + b.id + '" class="btn btn-sm btn-outline">查看详情</a>' + (b.available > 0 ? '<button class="btn btn-sm btn-primary" onclick="borrowBook(' + b.id + ', \'' + b.title.replace(/'/g, "\\'") + '\')">立即借阅</button>' : '<button class="btn btn-sm" disabled style="opacity:.5">暂无可借</button>') + '</div></div>';
   }).join('');
   renderPagination();
+  staggerRows('.book-row');
 }
 
 function renderPagination() {

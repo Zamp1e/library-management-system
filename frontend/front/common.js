@@ -30,6 +30,15 @@ function initReader() {
   `;
 }
 
+function staggerRows(selector, baseDelay) {
+  baseDelay = baseDelay || 0.03;
+  var rows = document.querySelectorAll(selector);
+  rows.forEach(function(row, i) {
+    row.classList.add('in-view');
+    row.style.animationDelay = (baseDelay * i).toFixed(2) + 's';
+  });
+}
+
 function logout() { localStorage.removeItem('reader_token'); localStorage.removeItem('reader_user'); location.href = 'login.html'; }
 
 function showToast(msg, type) {

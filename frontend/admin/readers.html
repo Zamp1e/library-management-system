@@ -74,6 +74,7 @@ async function loadReaders() {
         <button class="btn btn-sm btn-outline" onclick="openReaderModal(${u.id})">编辑</button>
         <button class="btn btn-sm ${u.status ? 'btn-danger' : 'btn-success'}" onclick="toggleStatus(${u.id}, ${u.status}, '${u.name}')">${u.status ? '禁用' : '启用'}</button>
       </td></tr>`).join('');
+  staggerRows('#readerTable tbody tr');
 }
 
 async function openReaderModal(id) {
