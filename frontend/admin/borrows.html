@@ -49,6 +49,7 @@
               <option value="">全部状态</option>
               <option value="applying">审核中</option>
               <option value="borrowed">借阅中</option>
+              <option value="overdue">逾期未还</option>
               <option value="returned">已归还</option>
               <option value="rejected">已拒绝</option>
             </select>
@@ -117,11 +118,11 @@ async function loadAllTab() {
   var searchUser = document.getElementById('searchUser').value.toLowerCase();
 
   var filtered = res.list || [];
-  if (statusFilter) filtered = filtered.filter(function(b) { return b.status === statusFilter; });
-  // 逾期筛选：借阅中 + 已过应还日期
-  if (presetStatus === 'overdue') {
+  if (statusFilter === 'overdue') {
     var today = new Date().toISOString().slice(0, 10);
     filtered = filtered.filter(function(b) { return b.status === 'borrowed' && b.dueDate < today; });
+  } else if (statusFilter) {
+    filtered = filtered.filter(function(b) { return b.status === statusFilter; });
   }
   if (searchUser) filtered = filtered.filter(function(b) { return (b.userName || '').toLowerCase().includes(searchUser); });
 
