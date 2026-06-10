@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台管理 - 仪表盘</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <div class="main-header"><h2>📊 仪表盘</h2><span></span></div>
+    <div class="main-content">
+      <div class="stat-grid" id="statGrid"></div>
+      <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;">
+        <div class="card"><div class="card-header"><h3>借阅趋势（近6月）</h3></div><div id="trendChart" style="height:280px;display:flex;align-items:flex-end;gap:12px;padding:10px 0;"></div></div>
+        <div class="card"><div class="card-header"><h3>图书分类分布</h3></div><div id="categoryChart" style="height:280px;"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="toast-container"></div>
+<script src="../mock/data.js"></script>
+<script src="../js/api.js"></script>
+<script src="common.js"></script>
+<script>
+initAdmin();
+
+async function loadStats() {
+  const stats = await API.stats.overview();
+  document.getElementById('statGrid').innerHTML = `
+    <div class="stat-card"><div class="stat-icon blue">📚</div><div class="stat-info"><div class="stat-value">${stats.totalBooks}</div><div class="stat-label">馆藏图书总数</div></div></div>
+    <div class="stat-card"><div class="stat-icon green">👥</div><div class="stat-info"><div class="stat-value">${stats.totalReaders}</div><div class="stat-label">注册读者数</div></div></div>
+    <div class="stat-card"><div class="stat-icon orange">📥</div><div class="stat-info"><div class="stat-value">${stats.borrowing}</div><div class="stat-label">当前借阅中</div></div></div>
+    <div class="stat-card"><div class="stat-icon red">⚠️</div><div class="stat-info"><div class="stat-value">${stats.overdue}</div><div class="stat-label">逾期未还</div></div></div>
+  `;
+  renderTrend(stats.borrowingTrend);
+  renderCategory(stats.categoryDist);
+}
+
+function renderTrend(data) {
+  const max = Math.max(...data.map(d => d.count));
+  document.getElementById('trendChart').innerHTML = data.map(d => {
+    const h = max > 0 ? (d.count / max * 100).toFixed(0) : 0;
+    return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:8px;">
+      <span style="font-weight:600;font-size:.9rem;">${d.count}</span>
+      <div style="width:100%;max-width:50px;background:linear-gradient(to top,var(--primary),var(--primary-light));border-radius:6px 6px 0 0;height:${h}%;min-height:10px;transition:.3s;"></div>
+      <span style="font-size:.8rem;color:var(--text-secondary);">${d.month}</span>
+    </div>`;
+  }).join('');
+}
+
+function renderCategory(data) {
+  const total = data.reduce((s, d) => s + d.value, 0);
+  const colors = ['#1a73e8','#0d904f','#f5a623','#d93025','#8e24aa','#00acc1'];
+  document.getElementById('categoryChart').innerHTML = data.map((d, i) => {
+    const pct = total > 0 ? (d.value / total * 100).toFixed(0) : 0;
+    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
+      <span style="font-size:.85rem;min-width:40px;">${d.name}</span>
+      <div style="flex:1;background:#eee;border-radius:10px;height:20px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${colors[i]};border-radius:10px;transition:.3s;"></div></div>
+      <span style="font-size:.85rem;font-weight:600;min-width:36px;">${d.value}</span>
+    </div>`;
+  }).join('');
+}
+</script>
+</body>
+</html>
