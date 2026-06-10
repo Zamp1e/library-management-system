@@ -28,7 +28,7 @@ function initAdmin() {
       <button class="logout-btn" onclick="logout()">退出登录</button>
     </div>
   `;
-  loadStats && loadStats();
+  if (typeof loadStats === 'function') loadStats();
 }
 
 function logout() { localStorage.clear(); location.href = 'login.html'; }
