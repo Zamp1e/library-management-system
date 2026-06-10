@@ -5,7 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>后台管理 - 仪表盘</title>
 <link rel="stylesheet" href="../css/style.css">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="layout">
@@ -15,8 +14,8 @@
     <div class="main-content">
       <div class="stat-grid" id="statGrid"></div>
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;">
-        <div class="card"><div class="card-header"><h3>借阅趋势（近6月）</h3></div><canvas id="trendChart" height="280"></canvas></div>
-        <div class="card"><div class="card-header"><h3>图书分类分布</h3></div><canvas id="categoryChart" height="280"></canvas></div>
+        <div class="card"><div class="card-header"><h3>借阅趋势（近6月）</h3></div><div id="trendChart"></div></div>
+        <div class="card"><div class="card-header"><h3>图书分类分布</h3></div><div id="categoryChart"></div></div>
       </div>
     </div>
   </div>
@@ -27,10 +26,9 @@
 <script src="common.js"></script>
 <script>
 initAdmin();
-var trendChart, catChart;
 
 async function loadStats() {
-  const stats = await API.stats.overview();
+  var stats = await API.stats.overview();
   document.getElementById('statGrid').innerHTML =
     '<div class="stat-card"><div class="stat-icon blue">📚</div><div class="stat-info"><div class="stat-value">' + stats.totalBooks + '</div><div class="stat-label">馆藏图书总数</div></div></div>' +
     '<div class="stat-card"><div class="stat-icon green">👥</div><div class="stat-info"><div class="stat-value">' + stats.totalReaders + '</div><div class="stat-label">注册读者数</div></div></div>' +
@@ -40,58 +38,57 @@ async function loadStats() {
   renderCategory(stats.categoryDist);
 }
 
+// ====== SVG 柱状图：借阅趋势 ======
 function renderTrend(data) {
-  if (trendChart) trendChart.destroy();
-  trendChart = new Chart(document.getElementById('trendChart'), {
-    type: 'bar',
-    data: {
-      labels: data.map(function(d) { return d.month; }),
-      datasets: [{
-        label: '借阅量',
-        data: data.map(function(d) { return d.count; }),
-        backgroundColor: ['#1a73e8','#4285f4','#669df6','#1a73e8','#4285f4','#669df6'],
-        borderRadius: 6,
-        maxBarThickness: 50
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        y: { beginAtZero: true, ticks: { stepSize: 5 } }
-      }
-    }
-  });
+  var W = 480, H = 260, pad = {top:20, right:20, bottom:40, left:40};
+  var cw = W - pad.left - pad.right, ch = H - pad.top - pad.bottom;
+  var barW = 40, gap = (cw - barW * data.length) / (data.length + 1);
+  var max = Math.max.apply(null, data.map(function(d){return d.count;}));
+  max = Math.max(max, 1);
+
+  var bars = '';
+  var labels = '';
+  var lines = '';
+  // 网格线
+  for (var i = 0; i <= 4; i++) {
+    var y = pad.top + ch * i / 4;
+    var v = Math.round(max * (4 - i) / 4);
+    lines += '<line x1="' + pad.left + '" y1="' + y + '" x2="' + (W - pad.right) + '" y2="' + y + '" stroke="#eee" stroke-width="1"/>';
+    lines += '<text x="' + (pad.left - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="11" fill="#888">' + v + '</text>';
+  }
+  for (var i = 0; i < data.length; i++) {
+    var h = ch * data[i].count / max;
+    var x = pad.left + gap + i * (barW + gap);
+    var y = pad.top + ch - h;
+    var hue = 210 + i * 15;
+    bars += '<rect x="' + x + '" y="' + y + '" width="' + barW + '" height="' + h + '" rx="4" fill="hsl(' + hue + ',70%,55%)"/>';
+    bars += '<text x="' + (x + barW/2) + '" y="' + (y - 6) + '" text-anchor="middle" font-size="12" font-weight="600" fill="#333">' + data[i].count + '</text>';
+    labels += '<text x="' + (x + barW/2) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="11" fill="#888">' + data[i].month + '</text>';
+  }
+
+  document.getElementById('trendChart').innerHTML =
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;max-height:280px;">' + lines + bars + labels + '</svg>';
 }
 
+// ====== SVG 横向柱状图：分类分布 ======
 function renderCategory(data) {
-  if (catChart) catChart.destroy();
+  data.sort(function(a,b){return b.value - a.value;});
+  var H = data.length * 36 + 10, W = 320, barH = 22;
   var colors = ['#1a73e8','#0d904f','#f5a623','#d93025','#8e24aa','#00acc1','#6c757d','#20c997','#fd7e14','#6610f2'];
-  // 按数量降序排列
-  data.sort(function(a, b) { return b.value - a.value; });
-  catChart = new Chart(document.getElementById('categoryChart'), {
-    type: 'bar',
-    data: {
-      labels: data.map(function(d) { return d.name; }),
-      datasets: [{
-        label: '数量',
-        data: data.map(function(d) { return d.value; }),
-        backgroundColor: data.map(function(d, i) { return colors[i % colors.length]; }),
-        borderRadius: 4,
-        maxBarThickness: 24
-      }]
-    },
-    options: {
-      indexAxis: 'y',
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: {
-        x: { beginAtZero: true, ticks: { stepSize: 1 } }
-      }
-    }
-  });
+  var max = Math.max.apply(null, data.map(function(d){return d.value;}));
+  max = Math.max(max, 1);
+
+  var bars = '';
+  for (var i = 0; i < data.length; i++) {
+    var y = i * 36 + 8;
+    var w = (W - 80) * data[i].value / max;
+    bars += '<text x="0" y="' + (y + 16) + '" font-size="12" fill="#555">' + data[i].name + '</text>';
+    bars += '<rect x="50" y="' + y + '" width="' + w + '" height="' + barH + '" rx="3" fill="' + colors[i % colors.length] + '"/>';
+    bars += '<text x="' + (52 + w) + '" y="' + (y + 16) + '" font-size="12" font-weight="600" fill="#333">' + data[i].value + '</text>';
+  }
+
+  document.getElementById('categoryChart').innerHTML =
+    '<svg viewBox="0 0 ' + W + ' ' + H + '" style="width:100%;height:auto;max-height:400px;">' + bars + '</svg>';
 }
 </script>
 </body>
