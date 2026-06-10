@@ -1,7 +1,7 @@
 // ========== API 封装层 ==========
 // 当前为 Mock 模式，对接后端时修改 USE_MOCK = false 并配置 BASE_URL
 
-const USE_MOCK = true;
+const USE_MOCK = false;
 const BASE_URL = 'http://localhost:8080/api';
 
 async function request(method, url, data) {
