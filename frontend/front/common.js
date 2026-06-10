@@ -31,5 +31,6 @@ function showToast(msg, type) {
   const container = document.querySelector('.toast-container') || (() => { const c = document.createElement('div'); c.className = 'toast-container'; document.body.appendChild(c); return c; })();
   const toast = document.createElement('div'); toast.className = 'toast toast-' + type; toast.textContent = msg;
   container.appendChild(toast);
-  setTimeout(() => toast.remove(), 3000);
+  setTimeout(() => toast.classList.add('toast-exit'), 2600);
+  setTimeout(() => toast.remove(), 2900);
 }
