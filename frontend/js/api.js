@@ -40,7 +40,16 @@ function del(url) { return request('DELETE', url); }
 // ========== Mock 处理器 ==========
 function handleMock(method, url, data) {
   const M = MOCK;
-  const parts = url.replace('/api/', '').split('/').filter(Boolean);
+  const qIndex = url.indexOf('?');
+  if (!data && qIndex > -1) {
+    const params = {};
+    url.substring(qIndex + 1).split('&').forEach(function(p) {
+      var kv = p.split('='); if (kv[0]) params[kv[0]] = decodeURIComponent(kv[1] || '');
+    });
+    data = params;
+  }
+  const path = qIndex > -1 ? url.substring(0, qIndex) : url;
+  const parts = path.replace('/api/', '').split('/').filter(Boolean);
   const entity = parts[0]; // books | borrows | users | auth
   const id = parts[1] ? parseInt(parts[1]) : null;
 
