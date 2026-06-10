@@ -33,4 +33,21 @@ const MOCK = {
   _nextId: function (arr) { return Math.max(0, ...arr.map(x => x.id)) + 1; },
 };
 
-MOCK.save = function () { console.log('[Mock] Data saved (mock mode)'); };
+MOCK.save = function () {
+  try {
+    var data = { users: M.users, books: M.books, borrows: M.borrows };
+    localStorage.setItem('mock_db', JSON.stringify(data));
+  } catch(e) { console.warn('[Mock] Save failed:', e); }
+};
+
+(function() {
+  try {
+    var saved = localStorage.getItem('mock_db');
+    if (saved) {
+      var data = JSON.parse(saved);
+      if (data.users) MOCK.users = data.users;
+      if (data.books) MOCK.books = data.books;
+      if (data.borrows) MOCK.borrows = data.borrows;
+    }
+  } catch(e) {}
+})();

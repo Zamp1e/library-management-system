@@ -83,9 +83,9 @@ function handleMock(method, url, data) {
       }
       return { code: 200, data: { list, total: list.length } };
     }
-    if (method === 'POST') { const b = { ...data, id: M._nextId(M.books), total: data.total || 1, available: data.total || 1, createdAt: new Date().toISOString().slice(0, 10) }; M.books.push(b); return { code: 200, data: b }; }
-    if (method === 'PUT' && id) { const idx = M.books.findIndex(x => x.id === id); if (idx > -1) { M.books[idx] = { ...M.books[idx], ...data, id }; return { code: 200, data: M.books[idx] }; } return { code: 404 }; }
-    if (method === 'DELETE' && id) { const idx = M.books.findIndex(x => x.id === id); if (idx > -1) { M.books.splice(idx, 1); return { code: 200, data: null }; } return { code: 404 }; }
+    if (method === 'POST') { const b = { ...data, id: M._nextId(M.books), total: data.total || 1, available: data.total || 1, createdAt: new Date().toISOString().slice(0, 10) }; M.books.push(b); M.save(); return { code: 200, data: b }; }
+    if (method === 'PUT' && id) { const idx = M.books.findIndex(x => x.id === id); if (idx > -1) { M.books[idx] = { ...M.books[idx], ...data, id }; M.save(); return { code: 200, data: M.books[idx] }; } return { code: 404 }; }
+    if (method === 'DELETE' && id) { const idx = M.books.findIndex(x => x.id === id); if (idx > -1) { M.books.splice(idx, 1); M.save(); return { code: 200, data: null }; } return { code: 404 }; }
   }
 
   if (entity === 'borrows') {
@@ -113,7 +113,7 @@ function handleMock(method, url, data) {
       if (!book) return { code: 404, message: '图书不存在' };
       if (book.available <= 0) return { code: 400, message: '图书已全部借出' };
       const b = { id: M._nextId(M.borrows), bookId: data.bookId, userId: data.userId, status: 'applying', borrowDate: new Date().toISOString().slice(0, 10), dueDate: data.dueDate || '', returnDate: null };
-      M.borrows.push(b);
+      M.borrows.push(b); M.save();
       return { code: 200, data: enrich(b) };
     }
     if (method === 'PUT' && id) {
@@ -130,6 +130,7 @@ function handleMock(method, url, data) {
         }
         if (data.status === 'returned') M.borrows[idx].returnDate = new Date().toISOString().slice(0, 10);
       }
+      M.save();
       return { code: 200, data: enrich(M.borrows[idx]) };
     }
   }
@@ -152,21 +153,21 @@ function handleMock(method, url, data) {
       if (data.role === 'super_admin') return { code: 400, message: '不允许创建系统管理员' };
       if (M.users.find(x => x.username === data.username)) return { code: 400, message: '用户名已存在' };
       const u = { id: M._nextId(M.users), username: data.username, password: data.password || '123456', role: data.role, name: data.name, phone: data.phone || '', email: data.email || '', status: 1, createdAt: new Date().toISOString().slice(0, 10) };
-      M.users.push(u);
+      M.users.push(u); M.save();
       return { code: 200, data: { id: u.id } };
     }
     if (method === 'PUT' && id) {
       const idx = M.users.findIndex(x => x.id === id);
       if (idx === -1) return { code: 404 };
       if (data.role === 'super_admin' && M.users[idx].role !== 'super_admin') return { code: 400, message: '不允许升级为系统管理员' };
-      M.users[idx] = { ...M.users[idx], ...data, id, password: M.users[idx].password };
+      M.users[idx] = { ...M.users[idx], ...data, id, password: M.users[idx].password }; M.save();
       return { code: 200, data: { id } };
     }
     if (method === 'DELETE' && id) {
       const idx = M.users.findIndex(x => x.id === id);
       if (idx === -1) return { code: 404 };
       if (M.users[idx].role === 'super_admin') return { code: 400, message: '不能删除系统管理员' };
-      M.users.splice(idx, 1);
+      M.users.splice(idx, 1); M.save();
       return { code: 200, data: null };
     }
   }
