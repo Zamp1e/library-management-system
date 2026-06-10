@@ -45,7 +45,15 @@ public class BookService {
         if (data.getTotal() != null) {
             int diff = data.getTotal() - book.getTotal();
             book.setTotal(data.getTotal());
-            book.setAvailable(Math.max(0, Math.min(book.getAvailable() + diff, data.getTotal())));
+            if (data.getAvailable() != null) {
+                // 直接设置可借数量（如管理员手动矫正库存）
+                book.setAvailable(Math.max(0, Math.min(data.getAvailable(), data.getTotal())));
+            } else {
+                book.setAvailable(Math.max(0, Math.min(book.getAvailable() + diff, data.getTotal())));
+            }
+        } else if (data.getAvailable() != null) {
+            // 仅修改可借数量，不修改总数
+            book.setAvailable(Math.max(0, Math.min(data.getAvailable(), book.getTotal())));
         }
         if (data.getLocation() != null) book.setLocation(data.getLocation());
         if (data.getCover() != null) book.setCover(data.getCover());
