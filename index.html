@@ -3,157 +3,214 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>📚 图书管理系统</title>
+<title>图书管理系统</title>
 <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📚</text></svg>">
 <style>
 :root {
-  --ink: #1a1a2e; --card: #fff; --text: #1a1b26; --text2: #6b6d7b;
-  --border: #e8e9ef; --accent: #4c5fd5; --accent-bg: #eef0ff;
-  --green: #0d8c4a; --green-bg: #e8f5ee;
-  --orange: #d48900; --orange-bg: #fef4e8;
-  --red: #c53030; --red-bg: #fef0ef;
+  --primary: #4c5fd5;
+  --primary-dark: #3a4ab0;
+  --text: #191919;
+  --text-secondary: #666;
+  --text-muted: #999;
+  --bg: #fff;
+  --bg-section: #f7f8fa;
+  --border: #e5e5e5;
+  --shadow: 0 2px 16px rgba(0,0,0,.06);
+  --radius: 12px;
 }
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-  background: #f5f3ef; color: var(--text);
-  min-height: 100vh; -webkit-font-smoothing: antialiased;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Microsoft YaHei", "Helvetica Neue", sans-serif;
+  background: var(--bg); color: var(--text);
+  line-height: 1.6; -webkit-font-smoothing: antialiased;
 }
 
-/* Background */
-body::before {
-  content: ''; position: fixed; inset: 0; pointer-events: none; z-index: 0;
-  background:
-    repeating-linear-gradient(90deg, transparent, transparent 119px, rgba(0,0,0,.025) 119px, rgba(0,0,0,.025) 120px),
-    linear-gradient(180deg, #f5f3ef 0%, #ebe7e0 100%);
+/* ====== Nav ====== */
+.nav {
+  display: flex; align-items: center; justify-content: space-between;
+  max-width: 1200px; margin: 0 auto; padding: 0 40px;
+  height: 64px; font-size: .9rem;
+}
+.nav .logo { font-size: 1.15rem; font-weight: 700; color: var(--text); text-decoration: none; letter-spacing: -.01em; }
+.nav .logo:hover { color: var(--primary); }
+.nav .links { display: flex; gap: 32px; }
+.nav .links a { color: var(--text-secondary); text-decoration: none; transition: color .2s; font-size: .88rem; }
+.nav .links a:hover { color: var(--primary); }
+.nav .btn-demo {
+  padding: 8px 20px; border-radius: 20px; font-size: .85rem; font-weight: 500;
+  background: var(--primary); color: #fff; text-decoration: none;
+  transition: background .2s;
+}
+.nav .btn-demo:hover { background: var(--primary-dark); }
+
+/* ====== Hero ====== */
+.hero {
+  text-align: center; padding: 80px 20px 60px;
+  max-width: 800px; margin: 0 auto;
+}
+.hero .badge {
+  display: inline-block; padding: 6px 16px; border-radius: 20px;
+  font-size: .8rem; color: var(--primary); background: #eef0ff;
+  margin-bottom: 24px; font-weight: 500;
+}
+.hero h1 {
+  font-size: 2.8rem; font-weight: 700; letter-spacing: -.03em;
+  line-height: 1.25; margin-bottom: 16px;
+}
+.hero h1 span { color: var(--primary); }
+.hero .desc {
+  font-size: 1.05rem; color: var(--text-secondary);
+  max-width: 520px; margin: 0 auto 36px; line-height: 1.7;
+}
+.hero .actions { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+.hero .btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  padding: 12px 28px; border-radius: 24px; font-size: .95rem; font-weight: 500;
+  text-decoration: none; transition: all .2s;
+}
+.hero .btn-primary { background: var(--primary); color: #fff; }
+.hero .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 4px 16px rgba(76,95,213,.3); }
+.hero .btn-outline { background: #fff; color: var(--primary); border: 1px solid var(--primary); }
+.hero .btn-outline:hover { background: #f8f9ff; }
+
+/* ====== Feature Cards ====== */
+.features {
+  max-width: 1000px; margin: 0 auto; padding: 0 40px 60px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px;
+}
+.feature-card {
+  background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 32px 28px; transition: all .3s cubic-bezier(.16,1,.3,1);
+}
+.feature-card:hover { box-shadow: var(--shadow); transform: translateY(-4px); }
+.feature-card .icon { font-size: 2rem; margin-bottom: 16px; }
+.feature-card h3 { font-size: 1.05rem; font-weight: 600; margin-bottom: 8px; letter-spacing: -.01em; }
+.feature-card p { font-size: .85rem; color: var(--text-secondary); line-height: 1.7; }
+.feature-card .tag {
+  display: inline-block; margin-top: 12px; padding: 3px 10px;
+  font-size: .72rem; color: var(--text-muted); background: #f5f5f5;
+  border-radius: 10px;
 }
 
-.wrap { position: relative; z-index: 1; max-width: 780px; margin: 0 auto; padding: 40px 20px 60px; }
-
-/* ====== Header ====== */
-.header { text-align: center; margin-bottom: 36px; }
-.books { display: flex; justify-content: center; gap: 4px; margin-bottom: 20px; }
-.books span {
-  width: 40px; height: 58px; border-radius: 4px 4px 2px 2px;
-  font-size: 1.2rem; font-weight: 700; color: #fff; display: inline-flex;
-  align-items: center; justify-content: center;
-  box-shadow: 0 2px 8px rgba(0,0,0,.1);
-  transition: transform .3s cubic-bezier(.16,1,.3,1);
-  animation: bookIn .5s cubic-bezier(.16,1,.3,1) both;
+/* ====== Demo Section ====== */
+.demo-section { background: var(--bg-section); padding: 60px 20px; }
+.demo-section h2 { text-align: center; font-size: 1.6rem; font-weight: 700; margin-bottom: 8px; letter-spacing: -.02em; }
+.demo-section .sub { text-align: center; color: var(--text-secondary); font-size: .9rem; margin-bottom: 36px; }
+.demo-grid {
+  max-width: 900px; margin: 0 auto;
+  display: grid; grid-template-columns: 1fr 1fr; gap: 16px;
+  padding: 0 20px;
 }
-.books span:nth-child(1) { background: #4c5fd5; animation-delay: .1s; }
-.books span:nth-child(2) { background: #e84855; animation-delay: .18s; }
-.books span:nth-child(3) { background: #0d8c4a; animation-delay: .26s; }
-.books span:nth-child(4) { background: #d48900; animation-delay: .34s; }
-.books span:nth-child(5) { background: #7c5ce0; animation-delay: .42s; }
-.books span:hover { transform: translateY(-6px) scale(1.05); }
-@keyframes bookIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-.header h1 { font-size: 2rem; font-weight: 700; letter-spacing: -.02em; color: var(--ink); margin-bottom: 6px; }
-.header .tagline { font-size: .88rem; color: var(--text2); }
-
-/* ====== Entry Cards ====== */
-.entry { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 32px; }
-.entry .card {
-  display: flex; align-items: center; gap: 14px;
-  background: var(--card); border: 1px solid var(--border); border-radius: 16px;
-  padding: 18px 22px; text-decoration: none; color: inherit;
-  transition: all .25s cubic-bezier(.16,1,.3,1);
-  animation: fadeUp .5s cubic-bezier(.16,1,.3,1) both;
+.demo-card {
+  background: var(--bg); border-radius: var(--radius); border: 1px solid var(--border);
+  padding: 28px; text-decoration: none; color: inherit;
+  transition: all .3s cubic-bezier(.16,1,.3,1);
+  display: flex; gap: 16px;
 }
-.entry .card:nth-child(1) { animation-delay: .2s; }
-.entry .card:nth-child(2) { animation-delay: .3s; }
-.entry .card:hover { transform: translateX(3px); border-color: var(--accent); box-shadow: 0 4px 20px rgba(76,95,213,.1); }
-.entry .card .ic { font-size: 1.8rem; width: 48px; height: 48px; display: flex; align-items: center; justify-content: center; border-radius: 12px; flex-shrink: 0; }
-.entry .card .ic.reader { background: var(--accent-bg); }
-.entry .card .ic.admin { background: var(--orange-bg); }
-.entry .card .info h3 { font-size: .95rem; font-weight: 600; letter-spacing: -.01em; }
-.entry .card .info span { font-size: .72rem; color: var(--text2); background: #f1f3f6; padding: 2px 7px; border-radius: 8px; }
-
-@keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
-
-/* ====== Tech Stack ====== */
-.section-title { font-size: .82rem; font-weight: 600; color: var(--text2); text-transform: uppercase; letter-spacing: .06em; margin: 28px 0 12px; }
-.stack { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
-.stack .chip {
-  padding: 6px 14px; border-radius: 20px; font-size: .8rem; font-weight: 500;
-  background: var(--card); border: 1px solid var(--border);
-  animation: fadeUp .4s cubic-bezier(.16,1,.3,1) both;
+.demo-card:hover { box-shadow: var(--shadow); }
+.demo-card .dc-icon {
+  width: 56px; height: 56px; border-radius: 14px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 1.6rem; flex-shrink: 0;
 }
-.stack .chip:nth-child(1) { animation-delay: .35s; } .stack .chip:nth-child(2) { animation-delay: .38s; }
-.stack .chip:nth-child(3) { animation-delay: .41s; } .stack .chip:nth-child(4) { animation-delay: .44s; }
-.stack .chip:nth-child(5) { animation-delay: .47s; } .stack .chip:nth-child(6) { animation-delay: .5s; }
-.stack .chip:nth-child(7) { animation-delay: .53s; } .stack .chip:nth-child(8) { animation-delay: .56s; }
+.demo-card .dc-icon.reader { background: #eef0ff; }
+.demo-card .dc-icon.admin { background: #fff3e0; }
+.demo-card .dc-info h4 { font-size: 1rem; font-weight: 600; margin-bottom: 4px; }
+.demo-card .dc-info .dc-desc { font-size: .82rem; color: var(--text-secondary); line-height: 1.5; }
+.demo-card .dc-info .dc-hint { font-size: .72rem; color: var(--text-muted); margin-top: 6px; }
 
-/* ====== Tabs ====== */
-.tabs { display: flex; gap: 0; margin-bottom: 16px; }
-.tab {
-  padding: 8px 18px; border: none; background: none; cursor: pointer;
-  font-size: .82rem; font-weight: 500; color: var(--text2);
-  border-bottom: 2px solid transparent; transition: .2s;
+/* ====== Tabs Section ====== */
+.docs-section { max-width: 1000px; margin: 0 auto; padding: 60px 40px; }
+.docs-section h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 24px; letter-spacing: -.02em; }
+.docs-tabs { display: flex; gap: 0; border-bottom: 1px solid var(--border); margin-bottom: 24px; }
+.docs-tab {
+  padding: 10px 24px; border: none; background: none; cursor: pointer;
+  font-size: .88rem; color: var(--text-secondary); font-weight: 500;
+  border-bottom: 2px solid transparent; margin-bottom: -1px;
+  transition: all .2s;
 }
-.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
-.tab-panel { display: none; animation: fadeUp .35s cubic-bezier(.16,1,.3,1) both; }
-.tab-panel.active { display: block; }
+.docs-tab:first-child { padding-left: 0; }
+.docs-tab.active { color: var(--text); border-bottom-color: var(--text); }
+.docs-panel { display: none; animation: fadeIn .35s ease both; }
+.docs-panel.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
 
-/* ====== Visual Cards ====== */
-.arch-row { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; }
-.arch-box {
-  padding: 12px 18px; border-radius: 12px; text-align: center;
-  font-size: .78rem; font-weight: 500; line-height: 1.4;
-  animation: fadeUp .4s cubic-bezier(.16,1,.3,1) both;
+/* Panel: Architecture */
+.flow { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center; padding: 20px 0; }
+.flow-box {
+  padding: 14px 20px; border-radius: var(--radius); text-align: center;
+  font-size: .82rem; font-weight: 500; line-height: 1.5;
 }
-.arch-box.strong { background: var(--accent); color: #fff; font-size: .9rem; min-width: 70px; }
-.arch-box.mid { background: var(--card); border: 1px solid var(--border); min-width: 90px; }
-.arch-box.sub { background: #f8f9fd; border: 1px dashed var(--border); font-size: .72rem; }
-.arch-arrow { color: var(--text2); font-size: 1.2rem; font-weight: 300; }
+.flow-box.f1 { background: var(--primary); color: #fff; }
+.flow-box.f2 { background: #f7f8fa; border: 1px solid var(--border); }
+.flow-arrow { color: var(--text-muted); font-size: 1.3rem; }
+.flow-caption { text-align: center; margin-top: 16px; }
+.flow-caption span {
+  display: inline-block; padding: 4px 12px; margin: 2px;
+  font-size: .75rem; color: var(--text-secondary); background: #f7f8fa;
+  border-radius: 6px;
+}
 
-/* ====== API Table ====== */
-.api-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
-.api-row {
+/* Panel: API */
+.api-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.api-item {
   display: flex; align-items: center; gap: 8px;
-  background: var(--card); border: 1px solid var(--border); border-radius: 8px;
-  padding: 8px 12px; font-size: .76rem;
-  animation: fadeUp .35s cubic-bezier(.16,1,.3,1) both;
+  padding: 9px 14px; border-radius: 8px; font-size: .78rem;
+  background: #fafafa; border: 1px solid #f0f0f0;
 }
-.api-row .method {
-  font-size: .65rem; font-weight: 700; padding: 2px 6px; border-radius: 4px;
-  min-width: 36px; text-align: center; letter-spacing: .04em;
+.api-item .verb {
+  font-size: .62rem; font-weight: 700; letter-spacing: .05em;
+  padding: 3px 8px; border-radius: 4px; min-width: 40px; text-align: center;
 }
-.api-row .method.get { background: var(--green-bg); color: var(--green); }
-.api-row .method.post { background: var(--orange-bg); color: var(--orange); }
-.api-row .method.put { background: var(--accent-bg); color: var(--accent); }
-.api-row .method.del { background: var(--red-bg); color: var(--red); }
-.api-row .path { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-family: "SF Mono","Fira Code",monospace; font-size: .74rem; }
+.verb-get { background: #e8f5e9; color: #2e7d32; }
+.verb-post { background: #fff3e0; color: #e65100; }
+.verb-put { background: #e8eaf6; color: #283593; }
+.verb-del { background: #ffebee; color: #c62828; }
+.api-item .ep { font-family: "SF Mono","Fira Code","Consolas",monospace; font-size: .74rem; color: var(--text); }
 
-/* ====== DB Table ====== */
-.db-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+/* Panel: DB */
+.db-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
 .db-card {
-  background: var(--card); border: 1px solid var(--border); border-radius: 12px;
-  padding: 14px 16px; font-size: .78rem;
-  animation: fadeUp .4s cubic-bezier(.16,1,.3,1) both;
+  padding: 18px 20px; border-radius: var(--radius);
+  border: 1px solid var(--border); background: #fafafa;
 }
-.db-card:nth-child(1) { animation-delay: .05s; }
-.db-card:nth-child(2) { animation-delay: .12s; }
-.db-card:nth-child(3) { animation-delay: .19s; }
-.db-card h4 { font-size: .82rem; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-.db-card h4 .dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
-.db-card h4 .dot.u { background: var(--accent); }
-.db-card h4 .dot.b { background: var(--green); }
-.db-card h4 .dot.br { background: var(--orange); }
-.db-card p { color: var(--text2); font-size: .72rem; line-height: 1.6; }
+.db-card h4 { font-size: .85rem; font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+.db-card h4 .d { width: 8px; height: 8px; border-radius: 50%; }
+.db-card .cols { font-size: .72rem; color: var(--text-secondary); line-height: 1.8; }
+.db-card .cols .hl { color: var(--text); font-weight: 500; }
+
+/* Panel: Flow */
+.borrow-flow { display: flex; align-items: center; gap: 16px; justify-content: center; padding: 24px 0; flex-wrap: wrap; }
+.bf-step {
+  text-align: center; padding: 16px 20px; border-radius: var(--radius);
+  font-size: .8rem; font-weight: 500; line-height: 1.5;
+  min-width: 120px;
+}
+.bf-step.s1 { background: #eef0ff; border: 1px solid #c5caf0; }
+.bf-step.s2 { background: #fff8e1; border: 1px solid #ffe082; }
+.bf-step.s3 { background: #e8f5e9; border: 1px solid #a5d6a7; }
+.bf-step.s4 { background: #fce4ec; border: 1px solid #f48fb1; }
+.bf-step.s5 { background: #e3f2fd; border: 1px solid #90caf9; }
+.bf-arrow { font-size: 1.4rem; color: var(--text-muted); }
+.bf-note { text-align: center; margin-top: 16px; font-size: .82rem; color: var(--text-secondary); }
 
 /* ====== Footer ====== */
-.footer { text-align: center; margin-top: 36px; font-size: .75rem; color: var(--text2); animation: fadeUp .5s .6s cubic-bezier(.16,1,.3,1) both; }
-.footer a { color: var(--accent); text-decoration: none; }
+.footer {
+  text-align: center; padding: 32px 20px; font-size: .78rem; color: var(--text-muted);
+  border-top: 1px solid var(--border);
+}
+.footer a { color: var(--primary); text-decoration: none; }
 
-@media (max-width: 600px) {
-  .entry { grid-template-columns: 1fr; }
-  .api-grid { grid-template-columns: 1fr; }
-  .db-grid { grid-template-columns: 1fr; }
-  .arch-row { gap: 6px; }
-  .header h1 { font-size: 1.5rem; }
+@media (max-width: 768px) {
+  .hero h1 { font-size: 2rem; }
+  .features { grid-template-columns: 1fr; padding: 0 20px 40px; }
+  .demo-grid { grid-template-columns: 1fr; }
+  .api-list { grid-template-columns: 1fr; }
+  .db-cards { grid-template-columns: 1fr; }
+  .docs-section { padding: 40px 20px; }
+  .nav { padding: 0 16px; }
+  .nav .links { display: none; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -163,136 +220,163 @@ body::before {
 </head>
 <body>
 
-<div class="wrap">
+<!-- Nav -->
+<nav class="nav">
+  <a href="#" class="logo">📚 图书管理系统</a>
+  <div class="links">
+    <a href="frontend/front/index.html">读者端</a>
+    <a href="frontend/admin/index.html">管理端</a>
+  </div>
+  <a href="frontend/admin/index.html" class="btn-demo">演示</a>
+</nav>
 
-  <!-- ====== Header ====== -->
-  <header class="header">
-    <div class="books"><span>📖</span><span>📕</span><span>📗</span><span>📘</span><span>📙</span></div>
-    <h1>图书管理系统</h1>
-    <p class="tagline">Library Management System</p>
-  </header>
+<!-- Hero -->
+<section class="hero">
+  <div class="badge">Spring Boot 3.2 · Java 17 · MySQL 8.0</div>
+  <h1>让图书管理<br><span>简单而高效</span></h1>
+  <p class="desc">完整的图书管理系统，支持在线检索、借阅审批、库存追踪。前后端分离架构，原生前端零框架依赖。</p>
+  <div class="actions">
+    <a href="frontend/front/index.html" class="btn btn-primary">📖 进入读者端</a>
+    <a href="frontend/admin/index.html" class="btn btn-outline">🔑 进入管理端</a>
+  </div>
+</section>
 
-  <!-- ====== Quick Entry ====== -->
-  <div class="entry">
-    <a href="frontend/front/index.html" class="card">
-      <div class="ic reader">👤</div>
-      <div class="info"><h3>读者端</h3><span>zhangsan / 123456</span></div>
+<!-- Features -->
+<section class="features">
+  <div class="feature-card">
+    <div class="icon">📚</div>
+    <h3>图书管理</h3>
+    <p>36本图书，10个分类。支持搜索、筛选、新增、编辑，库存实时追踪。</p>
+    <span class="tag">CRUD · 分类筛选 · 库存</span>
+  </div>
+  <div class="feature-card">
+    <div class="icon">🔄</div>
+    <h3>借阅流程</h3>
+    <p>申请即扣库存，防并发竞态。审批/拒绝/归还全流程，库存自动还原。</p>
+    <span class="tag">竞态控制 · @Transactional</span>
+  </div>
+  <div class="feature-card">
+    <div class="icon">📊</div>
+    <h3>数据可视化</h3>
+    <p>SVG手写图表，借阅趋势+分类分布一目了然。仪表盘卡片一键跳转。</p>
+    <span class="tag">SVG · 统计面板 · 联动筛选</span>
+  </div>
+</section>
+
+<!-- Demo Entry -->
+<section class="demo-section">
+  <h2>开始体验</h2>
+  <p class="sub">同一浏览器可同时登录两个账号，互不干扰</p>
+  <div class="demo-grid">
+    <a href="frontend/front/index.html" class="demo-card">
+      <div class="dc-icon reader">👤</div>
+      <div class="dc-info">
+        <h4>读者端</h4>
+        <p class="dc-desc">图书检索 · 在线借阅 · 借阅历史</p>
+        <p class="dc-hint">演示账号：zhangsan / 123456</p>
+      </div>
     </a>
-    <a href="frontend/admin/index.html" class="card">
-      <div class="ic admin">🔑</div>
-      <div class="info"><h3>管理端</h3><span>admin / admin123</span></div>
+    <a href="frontend/admin/index.html" class="demo-card">
+      <div class="dc-icon admin">🔑</div>
+      <div class="dc-info">
+        <h4>管理端</h4>
+        <p class="dc-desc">仪表盘 · 图书管理 · 借阅审批</p>
+        <p class="dc-hint">演示账号：admin / admin123</p>
+      </div>
     </a>
   </div>
+</section>
 
-  <!-- ====== Tech Stack ====== -->
-  <div class="section-title">🛠 技术栈</div>
-  <div class="stack">
-    <span class="chip">Spring Boot 3.2</span><span class="chip">Java 17</span>
-    <span class="chip">MySQL 8.0</span><span class="chip">Spring Data JPA</span>
-    <span class="chip">BCrypt</span><span class="chip">Maven</span>
-    <span class="chip">原生 HTML/CSS/JS</span><span class="chip">SVG 图表</span>
+<!-- Project Docs -->
+<section class="docs-section">
+  <h2>项目详情</h2>
+  <div class="docs-tabs" id="tabs">
+    <button class="docs-tab active" data-panel="arch">架构</button>
+    <button class="docs-tab" data-panel="api">API 接口</button>
+    <button class="docs-tab" data-panel="db">数据库</button>
+    <button class="docs-tab" data-panel="flow">借阅流程</button>
   </div>
 
-  <!-- ====== Tabs ====== -->
-  <div class="section-title">📋 项目详情</div>
-  <div class="tabs" id="tabs">
-    <button class="tab active" data-panel="arch">架构</button>
-    <button class="tab" data-panel="api">API</button>
-    <button class="tab" data-panel="db">数据库</button>
-    <button class="tab" data-panel="flow">借阅流程</button>
-  </div>
-
-  <!-- Architecture Panel -->
-  <div class="tab-panel active" id="panel-arch">
-    <div class="arch-row">
-      <div class="arch-box strong">浏览器</div>
-      <span class="arch-arrow">→</span>
-      <div class="arch-box mid">前端<br>HTML/CSS/JS</div>
-      <span class="arch-arrow">⇄</span>
-      <div class="arch-box mid">REST API<br>:8080</div>
-      <span class="arch-arrow">→</span>
-      <div class="arch-box mid">Service<br>业务层</div>
-      <span class="arch-arrow">→</span>
-      <div class="arch-box mid">JPA<br>Repository</div>
-      <span class="arch-arrow">→</span>
-      <div class="arch-box strong">MySQL<br>8.0</div>
+  <div class="docs-panel active" id="panel-arch">
+    <div class="flow">
+      <div class="flow-box f1">浏览器</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box f2">HTML/CSS/JS<br>原生前端</div>
+      <span class="flow-arrow">⇄</span>
+      <div class="flow-box f2">REST API<br>:8080</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box f2">Service<br>业务逻辑</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box f2">JPA<br>数据访问</div>
+      <span class="flow-arrow">→</span>
+      <div class="flow-box f1">MySQL 8.0</div>
     </div>
-    <div class="arch-row">
-      <div class="arch-box sub">5 个 Controller</div>
-      <div class="arch-box sub">4 个 Service</div>
-      <div class="arch-box sub">3 个 Entity</div>
-      <div class="arch-box sub">3 张数据表</div>
-      <div class="arch-box sub">11 个前端页面</div>
+    <div class="flow-caption">
+      <span>5 Controller</span><span>4 Service</span><span>3 Entity</span><span>3 张表</span><span>11 页面</span>
     </div>
   </div>
 
-  <!-- API Panel -->
-  <div class="tab-panel" id="panel-api">
-    <div class="api-grid">
-      <div class="api-row"><span class="method post">POST</span><span class="path">/api/auth/login</span></div>
-      <div class="api-row"><span class="method get">GET</span><span class="path">/api/books?keyword=&category=</span></div>
-      <div class="api-row"><span class="method get">GET</span><span class="path">/api/books/{id}</span></div>
-      <div class="api-row"><span class="method post">POST</span><span class="path">/api/books</span></div>
-      <div class="api-row"><span class="method put">PUT</span><span class="path">/api/books/{id}</span></div>
-      <div class="api-row"><span class="method del">DEL</span><span class="path">/api/books/{id}</span></div>
-      <div class="api-row"><span class="method get">GET</span><span class="path">/api/borrows?userId=&status=</span></div>
-      <div class="api-row"><span class="method post">POST</span><span class="path">/api/borrows</span></div>
-      <div class="api-row"><span class="method put">PUT</span><span class="path">/api/borrows/{id}</span></div>
-      <div class="api-row"><span class="method get">GET</span><span class="path">/api/users?role=&keyword=</span></div>
-      <div class="api-row"><span class="method post">POST</span><span class="path">/api/users</span></div>
-      <div class="api-row"><span class="method get">GET</span><span class="path">/api/stats/overview</span></div>
+  <div class="docs-panel" id="panel-api">
+    <div class="api-list">
+      <div class="api-item"><span class="verb verb-post">POST</span><span class="ep">/api/auth/login</span></div>
+      <div class="api-item"><span class="verb verb-get">GET</span><span class="ep">/api/books</span></div>
+      <div class="api-item"><span class="verb verb-get">GET</span><span class="ep">/api/books/{id}</span></div>
+      <div class="api-item"><span class="verb verb-post">POST</span><span class="ep">/api/books</span></div>
+      <div class="api-item"><span class="verb verb-put">PUT</span><span class="ep">/api/books/{id}</span></div>
+      <div class="api-item"><span class="verb verb-del">DEL</span><span class="ep">/api/books/{id}</span></div>
+      <div class="api-item"><span class="verb verb-get">GET</span><span class="ep">/api/borrows</span></div>
+      <div class="api-item"><span class="verb verb-post">POST</span><span class="ep">/api/borrows</span></div>
+      <div class="api-item"><span class="verb verb-put">PUT</span><span class="ep">/api/borrows/{id}</span></div>
+      <div class="api-item"><span class="verb verb-get">GET</span><span class="ep">/api/users</span></div>
+      <div class="api-item"><span class="verb verb-post">POST</span><span class="ep">/api/users</span></div>
+      <div class="api-item"><span class="verb verb-get">GET</span><span class="ep">/api/stats/overview</span></div>
     </div>
   </div>
 
-  <!-- Database Panel -->
-  <div class="tab-panel" id="panel-db">
-    <div class="db-grid">
+  <div class="docs-panel" id="panel-db">
+    <div class="db-cards">
       <div class="db-card">
-        <h4><span class="dot u"></span>users 用户表</h4>
-        <p>id · username · password(BCrypt)<br>role(super_admin/admin/reader)<br>name · phone · status · created_at</p>
+        <h4><span class="d" style="background:var(--primary)"></span>users 用户表</h4>
+        <div class="cols"><span class="hl">id</span> · username · password · role · name · phone · status · created_at</div>
       </div>
       <div class="db-card">
-        <h4><span class="dot b"></span>books 图书表</h4>
-        <p>id · isbn · title · author<br>publisher · category · price<br>total · available · location</p>
+        <h4><span class="d" style="background:#0d8c4a"></span>books 图书表</h4>
+        <div class="cols"><span class="hl">id</span> · isbn · title · author · publisher · category · price · total · available</div>
       </div>
       <div class="db-card">
-        <h4><span class="dot br"></span>borrows 借阅表</h4>
-        <p>id · book_id(FK) · user_id(FK)<br>status(applying→borrowed→returned)<br>borrow_date · due_date · return_date</p>
+        <h4><span class="d" style="background:#d48900"></span>borrows 借阅表</h4>
+        <div class="cols"><span class="hl">id</span> · book_id · user_id · status · borrow_date · due_date · return_date</div>
       </div>
     </div>
   </div>
 
-  <!-- Flow Panel -->
-  <div class="tab-panel" id="panel-flow">
-    <div class="arch-row" style="justify-content:center;">
-      <div class="arch-box mid" style="text-align:center;">📖 读者申请<br><small style="color:var(--text2)">available -1</small></div>
-      <span class="arch-arrow">→</span>
-      <div class="arch-box sub">审核中<br>applying</div>
-      <span class="arch-arrow">⇢</span>
-      <div class="arch-box" style="background:var(--green-bg);border:1px solid var(--green);">✅ 批准<br><small>borrowed</small></div>
-      <span class="arch-arrow">→</span>
-      <div class="arch-box mid">📥 归还<br><small style="color:var(--text2)">available +1</small></div>
+  <div class="docs-panel" id="panel-flow">
+    <div class="borrow-flow">
+      <div class="bf-step s1">📖 读者申请<br>available −1</div>
+      <span class="bf-arrow">→</span>
+      <div class="bf-step s2">⏳ 审核中<br>applying</div>
+      <span class="bf-arrow">⇢</span>
+      <div class="bf-step s3">✅ 批准<br>borrowed</div>
+      <span class="bf-arrow">→</span>
+      <div class="bf-step s5">📥 归还<br>available +1</div>
     </div>
-    <div class="arch-row" style="justify-content:center;margin-top:8px;">
-      <span style="font-size:.78rem;color:var(--text2);text-align:center;">
-        ❌ 拒绝 → available +1（还原）&nbsp;&nbsp;|&nbsp;&nbsp;
-        所有操作 @Transactional 事务保护
-      </span>
+    <div class="bf-note">
+      拒绝 → 还原库存 &nbsp;|&nbsp; 所有操作在 @Transactional 中完成
     </div>
   </div>
+</section>
 
-  <!-- ====== Footer ====== -->
-  <footer class="footer">
-    <a href="https://github.com/Zamp1e/library-management-system">GitHub</a>
-    &nbsp;·&nbsp;答辩演示就绪
-  </footer>
-</div>
+<!-- Footer -->
+<footer class="footer">
+  <a href="https://github.com/Zamp1e/library-management-system">GitHub</a>
+  &nbsp;·&nbsp; 图书管理系统 © 2026
+</footer>
 
 <script>
 document.getElementById('tabs').addEventListener('click', function(e) {
-  if (!e.target.classList.contains('tab')) return;
-  document.querySelectorAll('.tab').forEach(function(t) { t.classList.remove('active'); });
-  document.querySelectorAll('.tab-panel').forEach(function(p) { p.classList.remove('active'); });
+  if (!e.target.classList.contains('docs-tab')) return;
+  document.querySelectorAll('.docs-tab').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.docs-panel').forEach(function(p) { p.classList.remove('active'); });
   e.target.classList.add('active');
   document.getElementById('panel-' + e.target.dataset.panel).classList.add('active');
 });
