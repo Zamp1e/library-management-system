@@ -86,8 +86,7 @@ if (presetStatus === 'applying') currentTab = 'apply';
 if (presetStatus) {
   setTimeout(function() {
     var sf = document.getElementById('statusFilter');
-    if (presetStatus === 'overdue') { sf.value = 'borrowed'; }
-    else { sf.value = presetStatus; }
+    sf.value = presetStatus;
     loadBorrows();
   }, 50);
 }
