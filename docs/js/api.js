@@ -33,7 +33,7 @@ function del(url) { return request('DELETE', url); }
 
 // ========== Mock 处理器 ==========
 function handleMock(method, url, data) {
-  const M = window.MOCK;
+  const M = MOCK;
   const parts = url.replace('/api/', '').split('/');
   const entity = parts[0]; // books | borrows | users | auth
   const id = parts[1] ? parseInt(parts[1]) : null;
