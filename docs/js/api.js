@@ -78,9 +78,15 @@ function handleMock(method, url, data) {
   }
 
   if (entity === 'borrows') {
+    // 辅助函数: JOIN books+users 填充显示字段
+    function enrich(b) {
+      const book = M.books.find(x => x.id === b.bookId);
+      const user = M.users.find(x => x.id === b.userId);
+      return { ...b, bookTitle: book ? book.title : '', userName: user ? user.name : '' };
+    }
     if (method === 'GET' && id) {
       const b = M.borrows.find(x => x.id === id);
-      return b ? { code: 200, data: b } : { code: 404 };
+      return b ? { code: 200, data: enrich(b) } : { code: 404 };
     }
     if (method === 'GET') {
       let list = [...M.borrows];
@@ -89,15 +95,15 @@ function handleMock(method, url, data) {
         if (data.status) list = list.filter(x => x.status === data.status);
         if (data.bookId) list = list.filter(x => x.bookId === parseInt(data.bookId));
       }
-      return { code: 200, data: { list: list.sort((a, b) => b.id - a.id), total: list.length } };
+      return { code: 200, data: { list: list.sort((a, b) => b.id - a.id).map(enrich), total: list.length } };
     }
     if (method === 'POST') {
       const book = M.books.find(x => x.id === data.bookId);
       if (!book) return { code: 404, message: '图书不存在' };
       if (book.available <= 0) return { code: 400, message: '图书已全部借出' };
-      const b = { id: M._nextId(M.borrows), bookId: data.bookId, userId: data.userId, bookTitle: book.title, userName: data.userName || '', status: 'applying', borrowDate: new Date().toISOString().slice(0, 10), dueDate: data.dueDate || '', returnDate: null };
+      const b = { id: M._nextId(M.borrows), bookId: data.bookId, userId: data.userId, status: 'applying', borrowDate: new Date().toISOString().slice(0, 10), dueDate: data.dueDate || '', returnDate: null };
       M.borrows.push(b);
-      return { code: 200, data: b };
+      return { code: 200, data: enrich(b) };
     }
     if (method === 'PUT' && id) {
       const idx = M.borrows.findIndex(x => x.id === id);
@@ -113,7 +119,7 @@ function handleMock(method, url, data) {
         }
         if (data.status === 'returned') M.borrows[idx].returnDate = new Date().toISOString().slice(0, 10);
       }
-      return { code: 200, data: M.borrows[idx] };
+      return { code: 200, data: enrich(M.borrows[idx]) };
     }
   }
 

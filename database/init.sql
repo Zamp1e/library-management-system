@@ -45,8 +45,6 @@ CREATE TABLE borrows (
     id          INT AUTO_INCREMENT PRIMARY KEY,
     book_id     INT          NOT NULL COMMENT '图书ID',
     user_id     INT          NOT NULL COMMENT '用户ID',
-    book_title  VARCHAR(200) NOT NULL COMMENT '书名',
-    user_name   VARCHAR(50)  NOT NULL COMMENT '借阅人',
     status      VARCHAR(20)  NOT NULL DEFAULT 'applying' COMMENT 'applying/borrowed/returned/rejected',
     borrow_date DATE         NOT NULL COMMENT '借阅日期',
     due_date    DATE         NOT NULL COMMENT '应还日期',
@@ -75,10 +73,10 @@ INSERT INTO books (isbn, title, author, publisher, category, price, total, avail
 ('978-7-111-69142-5', '设计模式之美',            '王争',            '机械工业出版社', '计算机', 119.00, 2, 2, 'A区-2排-8号',  '23种设计模式在真实项目中的应用。',                       '2026-05-10'),
 ('978-7-121-38339-1', 'JavaScript高级程序设计',  'Matt Frisbie',    '人民邮电出版社', '计算机', 139.00, 4, 3, 'A区-1排-12号', 'JavaScript红宝书，全面深入讲解JS核心。',                 '2026-06-01');
 
-INSERT INTO borrows (book_id, user_id, book_title, user_name, status, borrow_date, due_date, return_date) VALUES
-(1, 3, 'Java核心技术 卷I',        '张三', 'borrowed', '2026-05-20', '2026-06-20', NULL),
-(2, 3, 'Spring Boot实战',         '张三', 'returned', '2026-05-01', '2026-06-01', '2026-05-28'),
-(4, 4, '深入理解Java虚拟机',      '李四', 'borrowed', '2026-06-01', '2026-07-01', NULL),
-(5, 4, 'MySQL必知必会',           '李四', 'returned', '2026-04-10', '2026-05-10', '2026-05-05'),
-(6, 4, '图解HTTP',                '李四', 'borrowed', '2026-06-05', '2026-07-05', NULL),
-(3, 3, '数据结构与算法分析',      '张三', 'applying', '2026-06-09', '2026-07-09', NULL);
+INSERT INTO borrows (book_id, user_id, status, borrow_date, due_date, return_date) VALUES
+(1, 3, 'borrowed', '2026-05-20', '2026-06-20', NULL),
+(2, 3, 'returned', '2026-05-01', '2026-06-01', '2026-05-28'),
+(4, 4, 'borrowed', '2026-06-01', '2026-07-01', NULL),
+(5, 4, 'returned', '2026-04-10', '2026-05-10', '2026-05-05'),
+(6, 4, 'borrowed', '2026-06-05', '2026-07-05', NULL),
+(3, 3, 'applying', '2026-06-09', '2026-07-09', NULL);

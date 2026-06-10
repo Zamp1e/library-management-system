@@ -20,12 +20,12 @@ const MOCK = {
   ],
 
   borrows: [
-    { id: 1, bookId: 1, userId: 3, bookTitle: 'Java核心技术 卷I', userName: '张三', status: 'borrowed', borrowDate: '2026-05-20', dueDate: '2026-06-20', returnDate: null },
-    { id: 2, bookId: 2, userId: 3, bookTitle: 'Spring Boot实战', userName: '张三', status: 'returned', borrowDate: '2026-05-01', dueDate: '2026-06-01', returnDate: '2026-05-28' },
-    { id: 3, bookId: 4, userId: 4, bookTitle: '深入理解Java虚拟机', userName: '李四', status: 'borrowed', borrowDate: '2026-06-01', dueDate: '2026-07-01', returnDate: null },
-    { id: 4, bookId: 5, userId: 4, bookTitle: 'MySQL必知必会', userName: '李四', status: 'returned', borrowDate: '2026-04-10', dueDate: '2026-05-10', returnDate: '2026-05-05' },
-    { id: 5, bookId: 6, userId: 4, bookTitle: '图解HTTP', userName: '李四', status: 'borrowed', borrowDate: '2026-06-05', dueDate: '2026-07-05', returnDate: null },
-    { id: 6, bookId: 3, userId: 3, bookTitle: '数据结构与算法分析', userName: '张三', status: 'applying', borrowDate: '2026-06-09', dueDate: '2026-07-09', returnDate: null },
+    { id: 1, bookId: 1, userId: 3, status: 'borrowed', borrowDate: '2026-05-20', dueDate: '2026-06-20', returnDate: null },
+    { id: 2, bookId: 2, userId: 3, status: 'returned', borrowDate: '2026-05-01', dueDate: '2026-06-01', returnDate: '2026-05-28' },
+    { id: 3, bookId: 4, userId: 4, status: 'borrowed', borrowDate: '2026-06-01', dueDate: '2026-07-01', returnDate: null },
+    { id: 4, bookId: 5, userId: 4, status: 'returned', borrowDate: '2026-04-10', dueDate: '2026-05-10', returnDate: '2026-05-05' },
+    { id: 5, bookId: 6, userId: 4, status: 'borrowed', borrowDate: '2026-06-05', dueDate: '2026-07-05', returnDate: null },
+    { id: 6, bookId: 3, userId: 3, status: 'applying', borrowDate: '2026-06-09', dueDate: '2026-07-09', returnDate: null },
   ],
 
   categories: ['计算机', '数据库', '网络', '文学', '历史', '科学', '数学', '外语', '哲学', '经济'],
