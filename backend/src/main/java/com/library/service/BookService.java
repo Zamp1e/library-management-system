@@ -48,6 +48,7 @@ public class BookService {
             book.setAvailable(Math.max(0, Math.min(book.getAvailable() + diff, data.getTotal())));
         }
         if (data.getLocation() != null) book.setLocation(data.getLocation());
+        if (data.getCover() != null) book.setCover(data.getCover());
         if (data.getDescription() != null) book.setDescription(data.getDescription());
         return bookRepo.save(book);
     }

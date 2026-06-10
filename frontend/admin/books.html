@@ -5,6 +5,31 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>后台管理 - 图书管理</title>
 <link rel="stylesheet" href="../css/style.css">
+<style>
+.book-list { display: flex; flex-direction: column; gap: 12px; }
+.book-card-item {
+  display: flex; align-items: center; gap: 16px;
+  background: #fff; border-radius: 10px; padding: 16px;
+  box-shadow: 0 1px 3px rgba(0,0,0,.06); border: 1px solid #eee;
+  transition: .2s;
+}
+.book-card-item:hover { box-shadow: 0 4px 12px rgba(0,0,0,.1); }
+.book-cover-img {
+  width: 80px; height: 110px; min-width: 80px;
+  border-radius: 6px; object-fit: cover;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff; font-size: 1.8rem; font-weight: 700;
+}
+.book-cover-img img { width: 100%; height: 100%; object-fit: cover; border-radius: 6px; }
+.book-info { flex: 1; min-width: 0; }
+.book-info h4 { font-size: 1rem; margin-bottom: 4px; }
+.book-info .row { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 6px; }
+.book-info .row span { font-size: .82rem; color: var(--text-secondary); }
+.book-info .row span strong { color: var(--text); }
+.book-actions { display: flex; flex-direction: column; gap: 6px; }
+.book-actions button { min-width: 56px; }
+</style>
 </head>
 <body>
 <div class="layout">
@@ -18,12 +43,7 @@
           <select class="form-control" id="categoryFilter"><option value="">全部分类</option></select>
           <button class="btn btn-primary" onclick="loadBooks()">🔍 搜索</button>
         </div>
-        <div class="table-wrap">
-          <table>
-            <thead><tr><th>ID</th><th>书名</th><th>作者</th><th>分类</th><th>ISBN</th><th>价格</th><th>馆藏/可借</th><th>馆藏位置</th><th>操作</th></tr></thead>
-            <tbody id="bookTable"></tbody>
-          </table>
-        </div>
+        <div class="book-list" id="bookList"></div>
       </div>
     </div>
   </div>
@@ -51,6 +71,7 @@
           <div class="form-group"><label>馆藏数量 *</label><input class="form-control" id="total" type="number" required></div>
           <div class="form-group"><label>馆藏位置</label><input class="form-control" id="location" placeholder="如：A区-3排-15号"></div>
         </div>
+        <div class="form-group"><label>封面图片URL</label><input class="form-control" id="cover" placeholder="https://... 留空则显示默认封面"></div>
         <div class="form-group"><label>图书简介</label><textarea class="form-control" id="description" rows="3"></textarea></div>
       </form>
     </div>
@@ -75,16 +96,32 @@ async function loadBooks() {
   const keyword = document.getElementById('keyword').value;
   const category = document.getElementById('categoryFilter').value;
   const res = await API.books.list({ keyword, category });
-  document.getElementById('bookTable').innerHTML = res.list.length === 0
-    ? '<tr><td colspan="9"><div class="empty-state"><div class="icon">📭</div><p>暂无图书</p></div></td></tr>'
-    : res.list.map(b => `<tr>
-      <td>${b.id}</td><td><strong>${b.title}</strong></td><td>${b.author}</td>
-      <td><span class="badge badge-info">${b.category}</span></td><td style="font-size:.8rem;">${b.isbn}</td>
-      <td>¥${b.price.toFixed(2)}</td><td>${b.total} / ${b.available}</td><td>${b.location || '-'}</td>
-      <td>
-        <button class="btn btn-sm btn-outline" onclick="openBookModal(${b.id})">编辑</button>
-        <button class="btn btn-sm btn-danger" onclick="deleteBook(${b.id}, '${b.title}')">删除</button>
-      </td></tr>`).join('');
+  document.getElementById('bookList').innerHTML = res.list.length === 0
+    ? '<div class="empty-state"><div class="icon">📭</div><p>暂无图书</p></div>'
+    : res.list.map(b => `
+      <div class="book-card-item">
+        <div class="book-cover-img">${b.cover ? `<img src="${b.cover}" alt="${b.title}" onerror="this.parentElement.innerHTML='📖'">` : '📖'}</div>
+        <div class="book-info">
+          <h4>${b.title}</h4>
+          <div class="row">
+            <span>作者：<strong>${b.author}</strong></span>
+            <span>出版社：<strong>${b.publisher}</strong></span>
+            <span>分类：<span class="badge badge-info">${b.category}</span></span>
+            <span>ISBN：<strong style="font-size:.8rem;">${b.isbn}</strong></span>
+          </div>
+          <div class="row">
+            <span>价格：<strong>¥${b.price.toFixed(2)}</strong></span>
+            <span>馆藏：<strong>${b.total}</strong> 本</span>
+            <span>可借：<span class="badge ${b.available > 0 ? 'badge-success' : 'badge-danger'}">${b.available}</span></span>
+            <span>位置：<strong>${b.location || '-'}</strong></span>
+          </div>
+        </div>
+        <div class="book-actions">
+          <button class="btn btn-sm btn-outline" onclick="openBookModal(${b.id})">✏️ 编辑</button>
+          <button class="btn btn-sm btn-danger" onclick="deleteBook(${b.id}, '${b.title}')">🗑 删除</button>
+        </div>
+      </div>
+    `).join('');
 }
 
 async function openBookModal(id) {
@@ -102,6 +139,7 @@ async function openBookModal(id) {
     document.getElementById('price').value = book.price;
     document.getElementById('total').value = book.total;
     document.getElementById('location').value = book.location || '';
+    document.getElementById('cover').value = book.cover || '';
     document.getElementById('description').value = book.description || '';
   }
   document.getElementById('bookModal').classList.add('show');
@@ -120,6 +158,7 @@ async function saveBook() {
     price: parseFloat(document.getElementById('price').value),
     total: parseInt(document.getElementById('total').value),
     location: document.getElementById('location').value,
+    cover: document.getElementById('cover').value,
     description: document.getElementById('description').value,
   };
   if (!data.title || !data.author || !data.isbn) { showToast('请填写必填项', 'error'); return; }

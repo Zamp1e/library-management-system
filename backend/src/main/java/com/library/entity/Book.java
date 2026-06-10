@@ -35,6 +35,9 @@ public class Book {
     @Column(nullable = false)
     private Integer available = 1;
 
+    @Column(length = 500)
+    private String cover;
+
     @Column(length = 100)
     private String location;
 
@@ -64,6 +67,8 @@ public class Book {
     public void setTotal(Integer total) { this.total = total; }
     public Integer getAvailable() { return available; }
     public void setAvailable(Integer available) { this.available = available; }
+    public String getCover() { return cover; }
+    public void setCover(String cover) { this.cover = cover; }
     public String getLocation() { return location; }
     public void setLocation(String location) { this.location = location; }
     public String getDescription() { return description; }
