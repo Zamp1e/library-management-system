@@ -1,22 +1,22 @@
 /* ========== CSS Variables ========== */
 :root {
-  --primary: #1a73e8;
-  --primary-dark: #1557b0;
-  --primary-light: #e8f0fe;
-  --success: #0d904f;
-  --warning: #f5a623;
-  --danger: #d93025;
-  --bg: #f5f6fa;
-  --bg-card: #ffffff;
-  --text: #202124;
-  --text-secondary: #5f6368;
-  --border: #dadce0;
-  --sidebar-bg: #1e293b;
-  --sidebar-text: #cbd5e1;
-  --sidebar-active: #3b82f6;
-  --radius: 8px;
-  --shadow: 0 1px 3px rgba(0,0,0,.08), 0 1px 2px rgba(0,0,0,.06);
-  --shadow-lg: 0 4px 12px rgba(0,0,0,.1);
+  --primary: #5b4c38;
+  --primary-dark: #3d3025;
+  --primary-light: #f0ebe0;
+  --success: #5b7a4c;
+  --warning: #c4954a;
+  --danger: #a05040;
+  --bg: #faf7f0;
+  --bg-card: #fffef9;
+  --text: #2c2416;
+  --text-secondary: #8b7b65;
+  --border: #e5dccf;
+  --sidebar-bg: #2c2416;
+  --sidebar-text: #c4b8a7;
+  --sidebar-active: #8b7355;
+  --radius: 6px;
+  --shadow: 0 1px 3px rgba(44,36,22,.06), 0 1px 2px rgba(44,36,22,.04);
+  --shadow-lg: 0 4px 16px rgba(44,36,22,.08);
   --transition: .2s ease;
 }
 
@@ -115,18 +115,18 @@ table { border-collapse: collapse; width: 100%; }
 }
 .stat-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-1px); }
 .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-.stat-icon.blue { background: #e8f0fe; color: #1a73e8; }
-.stat-icon.green { background: #e6f4ea; color: #0d904f; }
-.stat-icon.orange { background: #fef7e0; color: #f5a623; }
-.stat-icon.red { background: #fce8e6; color: #d93025; }
+.stat-icon.blue { background: #f0ebe0; color: #5b4c38; }
+.stat-icon.green { background: #e7efe3; color: #5b7a4c; }
+.stat-icon.orange { background: #faf3e6; color: #c4954a; }
+.stat-icon.red { background: #f8eae6; color: #a05040; }
 .stat-info .stat-value { font-size: 1.8rem; font-weight: 700; line-height: 1.2; }
 .stat-info .stat-label { font-size: .85rem; color: var(--text-secondary); }
 
 /* ========== Tables ========== */
 .table-wrap { overflow-x: auto; }
 table th, table td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); font-size: .9rem; }
-table th { background: #fafafa; font-weight: 600; white-space: nowrap; color: var(--text-secondary); font-size: .85rem; text-transform: uppercase; }
-table tbody tr:hover { background: #f8f9ff; }
+table th { background: #faf7f2; font-weight: 600; white-space: nowrap; color: var(--text-secondary); font-size: .85rem; text-transform: uppercase; }
+table tbody tr:hover { background: #faf7f0; }
 table tbody tr { transition: var(--transition); }
 
 /* ========== Buttons ========== */
@@ -161,7 +161,7 @@ table tbody tr { transition: var(--transition); }
   transition: var(--transition);
   background: #fff;
 }
-.form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.form-control:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(91,76,56,.12); }
 .form-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; }
 textarea.form-control { resize: vertical; min-height: 80px; }
 
@@ -171,11 +171,11 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   padding: 2px 10px; border-radius: 12px;
   font-size: .78rem; font-weight: 600;
 }
-.badge-success { background: #e6f4ea; color: #0d904f; }
-.badge-warning { background: #fef7e0; color: #e09d00; }
-.badge-danger { background: #fce8e6; color: #d93025; }
-.badge-info { background: #e8f0fe; color: #1a73e8; }
-.badge-default { background: #f1f3f4; color: #5f6368; }
+.badge-success { background: #e7efe3; color: #5b7a4c; }
+.badge-warning { background: #faf3e6; color: #b88930; }
+.badge-danger { background: #f8eae6; color: #a05040; }
+.badge-info { background: #f0ebe0; color: #5b4c38; }
+.badge-default { background: #f2efe8; color: #8b7b65; }
 
 /* ========== Modal ========== */
 .modal-overlay {
@@ -219,7 +219,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   background: #fff; font-size: .85rem;
   transition: var(--transition);
 }
-.pagination button:hover { background: var(--primary-light); }
+.pagination button:hover { background: #f0ebe0; }
 .pagination button.active { background: var(--primary); color: #fff; border-color: var(--primary); }
 .pagination button:disabled { opacity: .4; cursor: default; }
 
@@ -237,12 +237,12 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 /* ========== Front pages (读者端) ========== */
 .front-header {
-  background: linear-gradient(135deg, #1a73e8, #4285f4);
+  background: linear-gradient(135deg, #3d3025, #5b4c38);
   color: #fff;
   padding: 0 28px;
   display: flex; align-items: center; justify-content: space-between;
   height: 60px;
-  box-shadow: 0 2px 8px rgba(0,0,0,.15);
+  box-shadow: 0 2px 8px rgba(44,36,22,.2);
 }
 .front-header .logo { font-size: 1.2rem; font-weight: 700; color: #fff; }
 .front-header .logo:hover { text-decoration: none; }
@@ -259,7 +259,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
   cursor: pointer;
 }
 .book-card:hover { box-shadow: var(--shadow-lg); transform: translateY(-2px); }
-.book-cover { height: 180px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.5rem; font-weight: 700; }
+.book-cover { height: 180px; background: linear-gradient(135deg, #5b4c38 0%, #8b7355 100%); display: flex; align-items: center; justify-content: center; color: #fff; font-size: 2.5rem; font-weight: 700; }
 .book-cover.empty { background: linear-gradient(135deg, #e0e0e0, #bdbdbd); }
 .book-info { padding: 14px; }
 .book-info h4 { font-size: 1rem; margin-bottom: 6px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
@@ -279,7 +279,7 @@ textarea.form-control { resize: vertical; min-height: 80px; }
 
 /* Book Detail */
 .detail-layout { display: grid; grid-template-columns: 240px 1fr; gap: 28px; }
-.detail-cover { width: 240px; height: 320px; border-radius: var(--radius); background: linear-gradient(135deg, #667eea, #764ba2); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #fff; font-weight: 700; }
+.detail-cover { width: 240px; height: 320px; border-radius: var(--radius); background: linear-gradient(135deg, #5b4c38, #8b7355); display: flex; align-items: center; justify-content: center; font-size: 4rem; color: #fff; font-weight: 700; }
 .detail-meta p { margin-bottom: 10px; }
 .detail-meta .label { color: var(--text-secondary); font-size: .85rem; }
 
