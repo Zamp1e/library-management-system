@@ -35,7 +35,7 @@ const MOCK = {
 
 MOCK.save = function () {
   try {
-    var data = { users: M.users, books: M.books, borrows: M.borrows };
+    var data = { users: MOCK.users, books: MOCK.books, borrows: MOCK.borrows };
     localStorage.setItem('mock_db', JSON.stringify(data));
   } catch(e) { console.warn('[Mock] Save failed:', e); }
 };
