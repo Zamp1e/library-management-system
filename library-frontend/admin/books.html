@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台管理 - 图书管理</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <div class="main-header"><h2>📚 图书管理</h2><button class="btn btn-primary" onclick="openBookModal()">+ 新增图书</button></div>
+    <div class="main-content">
+      <div class="card">
+        <div class="search-bar">
+          <input type="text" class="form-control" id="keyword" placeholder="书名、作者、ISBN...">
+          <select class="form-control" id="categoryFilter"><option value="">全部分类</option></select>
+          <button class="btn btn-primary" onclick="loadBooks()">🔍 搜索</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>书名</th><th>作者</th><th>分类</th><th>ISBN</th><th>价格</th><th>馆藏/可借</th><th>馆藏位置</th><th>操作</th></tr></thead>
+            <tbody id="bookTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="bookModal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modalTitle">新增图书</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <form id="bookForm">
+        <input type="hidden" id="bookId">
+        <div class="form-row">
+          <div class="form-group"><label>书名 *</label><input class="form-control" id="title" required></div>
+          <div class="form-group"><label>作者 *</label><input class="form-control" id="author" required></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>ISBN *</label><input class="form-control" id="isbn" required></div>
+          <div class="form-group"><label>出版社 *</label><input class="form-control" id="publisher" required></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>分类 *</label><select class="form-control" id="category" required></select></div>
+          <div class="form-group"><label>价格 *</label><input class="form-control" id="price" type="number" step="0.01" required></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>馆藏数量 *</label><input class="form-control" id="total" type="number" required></div>
+          <div class="form-group"><label>馆藏位置</label><input class="form-control" id="location" placeholder="如：A区-3排-15号"></div>
+        </div>
+        <div class="form-group"><label>图书简介</label><textarea class="form-control" id="description" rows="3"></textarea></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveBook()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+<script src="../mock/data.js"></script>
+<script src="../js/api.js"></script>
+<script src="common.js"></script>
+<script>
+initAdmin();
+const cats = MOCK.categories;
+cats.forEach(c => { document.getElementById('categoryFilter').innerHTML += `<option value="${c}">${c}</option>`; document.getElementById('category').innerHTML += `<option value="${c}">${c}</option>`; });
+loadBooks();
+
+async function loadBooks() {
+  const keyword = document.getElementById('keyword').value;
+  const category = document.getElementById('categoryFilter').value;
+  const res = await API.books.list({ keyword, category });
+  document.getElementById('bookTable').innerHTML = res.list.length === 0
+    ? '<tr><td colspan="9"><div class="empty-state"><div class="icon">📭</div><p>暂无图书</p></div></td></tr>'
+    : res.list.map(b => `<tr>
+      <td>${b.id}</td><td><strong>${b.title}</strong></td><td>${b.author}</td>
+      <td><span class="badge badge-info">${b.category}</span></td><td style="font-size:.8rem;">${b.isbn}</td>
+      <td>¥${b.price.toFixed(2)}</td><td>${b.total} / ${b.available}</td><td>${b.location || '-'}</td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="openBookModal(${b.id})">编辑</button>
+        <button class="btn btn-sm btn-danger" onclick="deleteBook(${b.id}, '${b.title}')">删除</button>
+      </td></tr>`).join('');
+}
+
+async function openBookModal(id) {
+  document.getElementById('modalTitle').textContent = id ? '编辑图书' : '新增图书';
+  document.getElementById('bookId').value = '';
+  document.getElementById('bookForm').reset();
+  if (id) {
+    const book = await API.books.detail(id);
+    document.getElementById('bookId').value = book.id;
+    document.getElementById('title').value = book.title;
+    document.getElementById('author').value = book.author;
+    document.getElementById('isbn').value = book.isbn;
+    document.getElementById('publisher').value = book.publisher;
+    document.getElementById('category').value = book.category;
+    document.getElementById('price').value = book.price;
+    document.getElementById('total').value = book.total;
+    document.getElementById('location').value = book.location || '';
+    document.getElementById('description').value = book.description || '';
+  }
+  document.getElementById('bookModal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('bookModal').classList.remove('show'); }
+
+async function saveBook() {
+  const id = document.getElementById('bookId').value;
+  const data = {
+    title: document.getElementById('title').value,
+    author: document.getElementById('author').value,
+    isbn: document.getElementById('isbn').value,
+    publisher: document.getElementById('publisher').value,
+    category: document.getElementById('category').value,
+    price: parseFloat(document.getElementById('price').value),
+    total: parseInt(document.getElementById('total').value),
+    location: document.getElementById('location').value,
+    description: document.getElementById('description').value,
+  };
+  if (!data.title || !data.author || !data.isbn) { showToast('请填写必填项', 'error'); return; }
+  try {
+    if (id) { await API.books.update(parseInt(id), data); showToast('更新成功', 'success'); }
+    else { await API.books.add(data); showToast('新增成功', 'success'); }
+    closeModal(); loadBooks();
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function deleteBook(id, title) {
+  if (!confirm(`确认删除《${title}》？此操作不可恢复。`)) return;
+  await API.books.delete(id);
+  showToast('删除成功', 'success');
+  loadBooks();
+}
+</script>
+</body>
+</html>

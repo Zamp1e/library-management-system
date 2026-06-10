@@ -1,0 +1,9 @@
+.agents/
+skills-lock.json
+杂项无用/
+.idea/
+*.iml
+target/
+node_modules/
+.DS_Store
+*.log

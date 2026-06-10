@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>后台管理 - 读者管理</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<div class="layout">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <div class="main-header"><h2>👥 读者管理</h2><button class="btn btn-primary" onclick="openReaderModal()">+ 新增读者</button></div>
+    <div class="main-content">
+      <div class="card">
+        <div class="search-bar">
+          <input type="text" class="form-control" id="keyword" placeholder="搜索读者姓名、用户名...">
+          <button class="btn btn-primary" onclick="loadReaders()">🔍 搜索</button>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead><tr><th>ID</th><th>用户名</th><th>姓名</th><th>手机号</th><th>邮箱</th><th>注册时间</th><th>状态</th><th>操作</th></tr></thead>
+            <tbody id="readerTable"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="readerModal">
+  <div class="modal">
+    <div class="modal-header"><h3 id="modalTitle">新增读者</h3><button class="modal-close" onclick="closeModal()">✕</button></div>
+    <div class="modal-body">
+      <form id="readerForm">
+        <input type="hidden" id="readerId">
+        <div class="form-row">
+          <div class="form-group"><label>用户名 *</label><input class="form-control" id="username" required></div>
+          <div class="form-group"><label>姓名 *</label><input class="form-control" id="name" required></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>密码</label><input class="form-control" id="password" type="password" placeholder="留空则不修改"></div>
+          <div class="form-group"><label>手机号</label><input class="form-control" id="phone"></div>
+        </div>
+        <div class="form-group"><label>邮箱</label><input class="form-control" id="email" type="email"></div>
+      </form>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-outline" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="saveReader()">保存</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container"></div>
+<script src="../mock/data.js"></script>
+<script src="../js/api.js"></script>
+<script src="common.js"></script>
+<script>
+initAdmin();
+loadReaders();
+
+async function loadReaders() {
+  const keyword = document.getElementById('keyword').value;
+  const res = await API.users.list({ role: 'reader', keyword });
+  document.getElementById('readerTable').innerHTML = res.list.length === 0
+    ? '<tr><td colspan="8"><div class="empty-state"><div class="icon">📭</div><p>暂无读者</p></div></td></tr>'
+    : res.list.map(u => `<tr>
+      <td>${u.id}</td><td>${u.username}</td><td>${u.name}</td><td>${u.phone || '-'}</td><td>${u.email || '-'}</td>
+      <td>${u.createdAt}</td>
+      <td><span class="badge ${u.status ? 'badge-success' : 'badge-danger'}">${u.status ? '正常' : '禁用'}</span></td>
+      <td>
+        <button class="btn btn-sm btn-outline" onclick="openReaderModal(${u.id})">编辑</button>
+        <button class="btn btn-sm ${u.status ? 'btn-danger' : 'btn-success'}" onclick="toggleStatus(${u.id}, ${u.status}, '${u.name}')">${u.status ? '禁用' : '启用'}</button>
+      </td></tr>`).join('');
+}
+
+async function openReaderModal(id) {
+  document.getElementById('modalTitle').textContent = id ? '编辑读者' : '新增读者';
+  document.getElementById('readerForm').reset();
+  document.getElementById('readerId').value = '';
+  document.getElementById('password').placeholder = '留空则不修改';
+  if (id) {
+    const res = await API.users.list({ role: 'reader' });
+    const u = res.list.find(x => x.id === id);
+    if (u) {
+      document.getElementById('readerId').value = u.id;
+      document.getElementById('username').value = u.username;
+      document.getElementById('name').value = u.name;
+      document.getElementById('phone').value = u.phone || '';
+      document.getElementById('email').value = u.email || '';
+      document.getElementById('password').placeholder = '留空则不修改密码';
+    }
+  }
+  document.getElementById('readerModal').classList.add('show');
+}
+
+function closeModal() { document.getElementById('readerModal').classList.remove('show'); }
+
+async function saveReader() {
+  const id = document.getElementById('readerId').value;
+  const data = { username: document.getElementById('username').value, name: document.getElementById('name').value, phone: document.getElementById('phone').value, email: document.getElementById('email').value, role: 'reader' };
+  const pwd = document.getElementById('password').value;
+  if (pwd) data.password = pwd;
+  if (!data.username || !data.name) { showToast('请填写必填项', 'error'); return; }
+  try {
+    if (id) { await API.users.update(parseInt(id), data); showToast('更新成功', 'success'); }
+    else { await API.users.create(data); showToast('新增成功', 'success'); }
+    closeModal(); loadReaders();
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
+async function toggleStatus(id, current, name) {
+  const action = current ? '禁用' : '启用';
+  if (!confirm(`确认${action}读者"${name}"？`)) return;
+  await API.users.update(id, { status: current ? 0 : 1 });
+  showToast(`${action}成功`, 'success');
+  loadReaders();
+}
+</script>
+</body>
+</html>

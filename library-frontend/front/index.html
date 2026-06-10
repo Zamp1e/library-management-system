@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>图书管理系统 - 首页</title>
+<link rel="stylesheet" href="../css/style.css">
+</head>
+<body>
+<header class="front-header">
+  <a href="index.html" class="logo">📚 图书馆</a>
+  <nav>
+    <a href="index.html">图书检索</a>
+    <a href="my-books.html">我的借阅</a>
+    <span class="user-area">
+      <span id="userName"></span>
+      <button class="btn btn-sm" style="background:rgba(255,255,255,.2);color:#fff;" onclick="logout()">退出</button>
+    </span>
+  </nav>
+</header>
+<div class="front-main">
+  <div class="search-bar">
+    <input type="text" class="form-control" id="keyword" placeholder="输入书名、作者或ISBN搜索...">
+    <select class="form-control" id="categoryFilter">
+      <option value="">全部分类</option>
+    </select>
+    <button class="btn btn-primary" onclick="search()">🔍 搜索</button>
+  </div>
+  <div class="book-grid" id="bookGrid"></div>
+  <div class="pagination" id="pagination"></div>
+</div>
+<div class="toast-container"></div>
+<script src="../mock/data.js"></script>
+<script src="../js/api.js"></script>
+<script>
+let currentPage = 1, pageSize = 12, allBooks = [];
+
+function init() {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  if (!user.id || user.role !== 'reader') { location.href = 'login.html'; return; }
+  document.getElementById('userName').textContent = user.name || user.username;
+  const cats = MOCK.categories;
+  const sel = document.getElementById('categoryFilter');
+  cats.forEach(c => { const o = document.createElement('option'); o.value = c; o.textContent = c; sel.appendChild(o); });
+  search();
+}
+
+async function search() {
+  const keyword = document.getElementById('keyword').value;
+  const category = document.getElementById('categoryFilter').value;
+  const res = await API.books.list({ keyword, category });
+  allBooks = res.list;
+  currentPage = 1;
+  renderBooks();
+}
+
+function renderBooks() {
+  const start = (currentPage - 1) * pageSize;
+  const items = allBooks.slice(start, start + pageSize);
+  const grid = document.getElementById('bookGrid');
+  if (items.length === 0) { grid.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>暂无图书</p></div>'; document.getElementById('pagination').innerHTML = ''; return; }
+  grid.innerHTML = items.map(b => `
+    <div class="book-card" onclick="location.href='book-detail.html?id=${b.id}'">
+      <div class="book-cover">📖</div>
+      <div class="book-info">
+        <h4>${b.title}</h4>
+        <div class="meta">${b.author} / ${b.publisher}</div>
+        <div class="meta" style="font-size:.8rem;">${b.category} | ISBN: ${b.isbn}</div>
+        <div class="bottom">
+          <span class="badge ${b.available > 0 ? 'badge-success' : 'badge-danger'}">${b.available > 0 ? '可借 ' + b.available + ' 本' : '已借完'}</span>
+          <span style="font-size:.85rem;">¥${b.price.toFixed(2)}</span>
+        </div>
+      </div>
+    </div>
+  `).join('');
+  renderPagination();
+}
+
+function renderPagination() {
+  const total = Math.ceil(allBooks.length / pageSize);
+  const el = document.getElementById('pagination');
+  if (total <= 1) { el.innerHTML = ''; return; }
+  let html = `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goPage(${currentPage - 1})">«</button>`;
+  for (let i = 1; i <= total; i++) { html += `<button class="${i === currentPage ? 'active' : ''}" onclick="goPage(${i})">${i}</button>`; }
+  html += `<button ${currentPage === total ? 'disabled' : ''} onclick="goPage(${currentPage + 1})">»</button>`;
+  el.innerHTML = html;
+}
+
+function goPage(p) { currentPage = p; renderBooks(); window.scrollTo(0, 0); }
+function logout() { localStorage.clear(); location.href = 'login.html'; }
+
+init();
+</script>
+</body>
+</html>
