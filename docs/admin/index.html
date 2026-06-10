@@ -68,21 +68,27 @@ function renderTrend(data) {
 function renderCategory(data) {
   if (catChart) catChart.destroy();
   var colors = ['#1a73e8','#0d904f','#f5a623','#d93025','#8e24aa','#00acc1','#6c757d','#20c997','#fd7e14','#6610f2'];
+  // 按数量降序排列
+  data.sort(function(a, b) { return b.value - a.value; });
   catChart = new Chart(document.getElementById('categoryChart'), {
-    type: 'doughnut',
+    type: 'bar',
     data: {
       labels: data.map(function(d) { return d.name; }),
       datasets: [{
+        label: '数量',
         data: data.map(function(d) { return d.value; }),
-        backgroundColor: colors.slice(0, data.length),
-        borderWidth: 0
+        backgroundColor: data.map(function(d, i) { return colors[i % colors.length]; }),
+        borderRadius: 4,
+        maxBarThickness: 24
       }]
     },
     options: {
+      indexAxis: 'y',
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: { position: 'right', labels: { padding: 16, usePointStyle: true } }
+      plugins: { legend: { display: false } },
+      scales: {
+        x: { beginAtZero: true, ticks: { stepSize: 1 } }
       }
     }
   });
