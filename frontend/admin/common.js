@@ -1,4 +1,9 @@
 // Admin common - sidebar, auth, toast
+// 强制每次刷新回到顶部
+if ('scrollRestoration' in history) { history.scrollRestoration = 'manual'; }
+window.addEventListener('beforeunload', function() { window.scrollTo(0, 0); });
+window.addEventListener('load', function() { window.scrollTo(0, 0); });
+
 function initAdmin() {
   const user = JSON.parse(localStorage.getItem('admin_user') || '{}');
   if (!user.id || user.role === 'reader') { location.href = 'login.html'; return; }
