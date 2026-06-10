@@ -8,10 +8,13 @@ USE library;
 -- ============================================
 -- 删除已有表 (按依赖顺序)
 -- ============================================
+SET FOREIGN_KEY_CHECKS = 0;
 DROP TABLE IF EXISTS operation_logs;
 DROP TABLE IF EXISTS borrows;
 DROP TABLE IF EXISTS books;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS borrow_config;
+SET FOREIGN_KEY_CHECKS = 1;
 
 -- ============================================
 -- 1. 用户表
@@ -52,7 +55,7 @@ CREATE TABLE books (
     publisher    VARCHAR(100)   NOT NULL COMMENT '出版社',
     publish_date DATE           DEFAULT NULL COMMENT '出版日期',
     edition      VARCHAR(30)    DEFAULT '' COMMENT '版次',
-    language     VARCHAR(20)    DEFAULT '中文' COMMENT '语种',
+    lang         VARCHAR(20)    DEFAULT '中文' COMMENT '语种',
     pages        INT            DEFAULT 0 COMMENT '页数',
     category     VARCHAR(50)    NOT NULL COMMENT '分类',
     price        DECIMAL(10,2)  NOT NULL COMMENT '定价',
@@ -172,7 +175,7 @@ INSERT INTO users (username, password, role, name, gender, phone, email, max_bor
 ('lisi',      '123456',   'reader',      '李四',       'F', '13800000004', 'lisi@qq.com',       5, '2026-06-08 10:30:00');
 
 -- 图书
-INSERT INTO books (isbn, title, author, publisher, publish_date, edition, language, pages, category, price, total, available, shelf_code, location, description, created_at) VALUES
+INSERT INTO books (isbn, title, author, publisher, publish_date, edition, lang, pages, category, price, total, available, shelf_code, location, description, created_at) VALUES
 ('978-7-111-59058-1', 'Java核心技术 卷I',        '霍斯特曼',         '机械工业出版社', '2020-07-01', '第11版', '中文', 752, '计算机', 149.00, 5, 3, 'A-03-15', 'A区-3排-15号', '本书是Java领域最有影响力和价值的著作之一，由拥有20多年教学与研究经验的资深Java技术专家撰写，全面覆盖Java SE 9/10/11的新特性。', '2026-01-10 08:30:00'),
 ('978-7-121-38338-5', 'Spring Boot实战',         '克雷格·沃尔斯',   '人民邮电出版社', '2021-03-01', '第6版', '中文', 468, '计算机',  99.00, 3, 2, 'A-03-16', 'A区-3排-16号', '本书全面讲解Spring Boot 2.x的实际应用，从入门到进阶，循序渐进地介绍Spring Boot的各个核心特性，包括自动配置、起步依赖、Actuator等。', '2026-02-15 10:00:00'),
 ('978-7-302-47595-8', '数据结构与算法分析',      '马克·艾伦·维斯', '清华大学出版社', '2019-08-01', '第3版', '中文', 628, '计算机',  79.00, 4, 4, 'B-01-05', 'B区-1排-5号',  '本书是数据结构和算法分析的经典教材，使用Java语言描述，详细讨论了数据结构和算法分析，包含大量示例和习题。', '2026-03-01 14:00:00'),
@@ -204,7 +207,6 @@ INSERT INTO operation_logs (user_id, username, role, action, target_type, target
 
 DELIMITER //
 
--- 借阅时自动扣减可借数量
 CREATE TRIGGER trg_borrow_insert
 AFTER INSERT ON borrows
 FOR EACH ROW
@@ -214,29 +216,21 @@ BEGIN
     END IF;
 END //
 
--- 状态变更时自动更新可借数量
 CREATE TRIGGER trg_borrow_update
 AFTER UPDATE ON borrows
 FOR EACH ROW
 BEGIN
-    -- 审批通过: 扣减库存
     IF OLD.status = 'applying' AND NEW.status = 'borrowed' THEN
         UPDATE books SET available = available - 1 WHERE id = NEW.book_id;
     END IF;
-    -- 归还: 恢复库存
     IF OLD.status = 'borrowed' AND NEW.status = 'returned' THEN
         UPDATE books SET available = available + 1 WHERE id = NEW.book_id;
-        -- 计算逾期罚款
         IF NEW.return_date > NEW.due_date THEN
             SET @days = DATEDIFF(NEW.return_date, NEW.due_date);
             SET @rate = (SELECT fine_per_day FROM borrow_config LIMIT 1);
             UPDATE borrows SET fine = @days * @rate, status = 'returned'
             WHERE id = NEW.id;
         END IF;
-    END IF;
-    -- 拒绝申请: 不扣库存
-    IF OLD.status = 'applying' AND NEW.status = 'rejected' THEN
-        -- 无库存变动
     END IF;
 END //
 
