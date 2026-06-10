@@ -5,6 +5,25 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>图书管理系统 - 首页</title>
 <link rel="stylesheet" href="../css/style.css">
+<style>
+.book-list { display: flex; flex-direction: column; gap: 2px; background: #e8eaed; border-radius: 8px; overflow: hidden; }
+.book-row {
+  display: flex; align-items: center; gap: 16px;
+  background: #fff; padding: 14px 18px;
+}
+.book-row:hover { background: #fafbff; }
+.book-main { flex: 1; min-width: 0; }
+.book-main h4 { font-size: .95rem; margin-bottom: 4px; }
+.book-main h4 a { color: var(--text); }
+.book-main h4 a:hover { color: var(--primary); }
+.book-main .meta { font-size: .8rem; color: var(--text-secondary); line-height: 1.7; }
+.book-stock { text-align: center; min-width: 72px; }
+.book-stock .num { font-size: 1.1rem; font-weight: 700; }
+.book-stock .lbl { font-size: .75rem; color: var(--text-secondary); }
+.book-actions { display: flex; flex-direction: column; gap: 6px; min-width: 72px; }
+.book-actions .btn { justify-content: center; }
+.empty-row { background: #fff; padding: 40px; }
+</style>
 </head>
 <body>
 <header class="front-header">
@@ -21,19 +40,17 @@
 <div class="front-main">
   <div class="search-bar">
     <input type="text" class="form-control" id="keyword" placeholder="输入书名、作者或ISBN搜索...">
-    <select class="form-control" id="categoryFilter">
-      <option value="">全部分类</option>
-    </select>
+    <select class="form-control" id="categoryFilter"><option value="">全部分类</option></select>
     <button class="btn btn-primary" onclick="search()">🔍 搜索</button>
   </div>
-  <div class="book-grid" id="bookGrid"></div>
+  <div class="book-list" id="bookList"></div>
   <div class="pagination" id="pagination"></div>
 </div>
 <div class="toast-container"></div>
 <script src="../mock/data.js"></script>
 <script src="../js/api.js"></script>
 <script>
-let currentPage = 1, pageSize = 12, allBooks = [];
+let currentPage = 1, pageSize = 10, allBooks = [];
 
 function init() {
   const user = JSON.parse(localStorage.getItem('user') || '{}');
@@ -57,19 +74,27 @@ async function search() {
 function renderBooks() {
   const start = (currentPage - 1) * pageSize;
   const items = allBooks.slice(start, start + pageSize);
-  const grid = document.getElementById('bookGrid');
-  if (items.length === 0) { grid.innerHTML = '<div class="empty-state"><div class="icon">📭</div><p>暂无图书</p></div>'; document.getElementById('pagination').innerHTML = ''; return; }
-  grid.innerHTML = items.map(b => `
-    <div class="book-card" onclick="location.href='book-detail.html?id=${b.id}'">
-      <div class="book-cover">📖</div>
-      <div class="book-info">
-        <h4>${b.title}</h4>
-        <div class="meta">${b.author} / ${b.publisher}</div>
-        <div class="meta" style="font-size:.8rem;">${b.category} | ISBN: ${b.isbn}</div>
-        <div class="bottom">
-          <span class="badge ${b.available > 0 ? 'badge-success' : 'badge-danger'}">${b.available > 0 ? '可借 ' + b.available + ' 本' : '已借完'}</span>
-          <span style="font-size:.85rem;">¥${b.price.toFixed(2)}</span>
+  const el = document.getElementById('bookList');
+  if (items.length === 0) { el.innerHTML = '<div class="empty-row"><div class="empty-state"><div class="icon">📭</div><p>暂无图书</p></div></div>'; document.getElementById('pagination').innerHTML = ''; return; }
+  el.innerHTML = items.map(b => `
+    <div class="book-row">
+      <div class="book-main">
+        <h4><a href="book-detail.html?id=${b.id}">${b.title}</a></h4>
+        <div class="meta">
+          作者：${b.author} &nbsp;|&nbsp; 出版社：${b.publisher} &nbsp;|&nbsp; ISBN：${b.isbn}
+          &nbsp;|&nbsp; <span class="badge badge-info">${b.category}</span>
+          &nbsp;|&nbsp; 位置：${b.location || '-'} &nbsp;|&nbsp; 价格：¥${b.price.toFixed(2)}
         </div>
+      </div>
+      <div class="book-stock">
+        <div class="num" style="color:${b.available > 0 ? 'var(--success)' : 'var(--danger)'}">${b.available} / ${b.total}</div>
+        <div class="lbl">可借 / 馆藏</div>
+      </div>
+      <div class="book-actions">
+        <a href="book-detail.html?id=${b.id}" class="btn btn-sm btn-outline">查看详情</a>
+        ${b.available > 0
+          ? `<button class="btn btn-sm btn-primary" onclick="borrowBook(${b.id}, '${b.title.replace(/'/g, "\\'")}')">立即借阅</button>`
+          : `<button class="btn btn-sm" disabled style="opacity:.5">暂无可借</button>`}
       </div>
     </div>
   `).join('');
@@ -87,6 +112,24 @@ function renderPagination() {
 }
 
 function goPage(p) { currentPage = p; renderBooks(); window.scrollTo(0, 0); }
+
+async function borrowBook(bookId, title) {
+  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const dueDate = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
+  try {
+    await API.borrows.create({ bookId, userId: user.id, userName: user.name, dueDate });
+    showToast(`《${title}》借阅申请已提交，等待管理员审核`, 'success');
+    setTimeout(() => location.reload(), 800);
+  } catch (err) { showToast(err.message, 'error'); }
+}
+
+function showToast(msg, type) {
+  const container = document.querySelector('.toast-container') || (() => { const c = document.createElement('div'); c.className = 'toast-container'; document.body.appendChild(c); return c; })();
+  const toast = document.createElement('div'); toast.className = 'toast toast-' + type; toast.textContent = msg;
+  container.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
 function logout() { localStorage.clear(); location.href = 'login.html'; }
 
 init();
