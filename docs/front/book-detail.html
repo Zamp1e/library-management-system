@@ -5,6 +5,18 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>图书详情</title>
 <link rel="stylesheet" href="../css/style.css">
+<style>
+.detail-card { background: #fff; border-radius: 10px; padding: 28px; box-shadow: 0 1px 3px rgba(0,0,0,.06); }
+.detail-card h2 { font-size: 1.4rem; margin-bottom: 20px; }
+.detail-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px 32px; margin-bottom: 24px; }
+.detail-item { display: flex; }
+.detail-item .lbl { color: var(--text-secondary); min-width: 70px; font-size: .85rem; }
+.detail-item .val { font-weight: 500; }
+.detail-desc { border-top: 1px solid #eee; padding-top: 20px; }
+.detail-desc h4 { margin-bottom: 10px; }
+.detail-desc p { color: var(--text-secondary); line-height: 1.8; }
+.detail-actions { margin-top: 24px; display: flex; gap: 10px; }
+</style>
 </head>
 <body>
 <header class="front-header">
@@ -19,7 +31,7 @@
   </nav>
 </header>
 <div class="front-main">
-  <div id="bookDetail" class="card">
+  <div id="bookDetail">
     <p style="text-align:center;padding:40px;color:var(--text-secondary);">加载中...</p>
   </div>
 </div>
@@ -42,32 +54,33 @@ async function init() {
 
 function renderBook(book, user) {
   document.getElementById('bookDetail').innerHTML = `
-    <a href="index.html" style="display:inline-block;margin-bottom:16px;">← 返回搜索</a>
-    <div class="detail-layout">
-      <div class="detail-cover">📖</div>
-      <div class="detail-meta">
-        <h2 style="margin-bottom:16px;">${book.title}</h2>
-        <p><span class="label">作者：</span>${book.author}</p>
-        <p><span class="label">出版社：</span>${book.publisher}</p>
-        <p><span class="label">ISBN：</span>${book.isbn}</p>
-        <p><span class="label">分类：</span><span class="badge badge-info">${book.category}</span></p>
-        <p><span class="label">馆藏位置：</span>${book.location}</p>
-        <p><span class="label">价格：</span>¥${book.price.toFixed(2)}</p>
-        <p>
-          <span class="label">状态：</span>
+    <a href="index.html" style="display:inline-block;margin-bottom:16px;">← 返回列表</a>
+    <div class="detail-card">
+      <h2>${book.title}</h2>
+      <div class="detail-grid">
+        <div class="detail-item"><span class="lbl">作者</span><span class="val">${book.author}</span></div>
+        <div class="detail-item"><span class="lbl">出版社</span><span class="val">${book.publisher}</span></div>
+        <div class="detail-item"><span class="lbl">ISBN</span><span class="val">${book.isbn}</span></div>
+        <div class="detail-item"><span class="lbl">分类</span><span class="badge badge-info">${book.category}</span></div>
+        <div class="detail-item"><span class="lbl">价格</span><span class="val">¥${book.price.toFixed(2)}</span></div>
+        <div class="detail-item"><span class="lbl">馆藏位置</span><span class="val">${book.location || '-'}</span></div>
+        <div class="detail-item"><span class="lbl">馆藏数量</span><span class="val">${book.total} 本</span></div>
+        <div class="detail-item">
+          <span class="lbl">可借状态</span>
           <span class="badge ${book.available > 0 ? 'badge-success' : 'badge-danger'}">
-            ${book.available > 0 ? '可借 (剩余' + book.available + '本/共' + book.total + '本)' : '已全部借出'}
+            ${book.available > 0 ? '可借（剩余' + book.available + '本）' : '已全部借出'}
           </span>
-        </p>
-        <div style="margin-top:24px;">
-          <h4 style="margin-bottom:8px;">图书简介</h4>
-          <p style="color:var(--text-secondary);line-height:1.8;">${book.description}</p>
         </div>
-        <div style="margin-top:24px;">
-          ${book.available > 0
-            ? `<button class="btn btn-primary" onclick="borrowBook(${book.id}, '${book.title}')">📥 立即借阅</button>`
-            : `<button class="btn btn-outline" disabled>暂不可借</button>`}
-        </div>
+      </div>
+      <div class="detail-desc">
+        <h4>图书简介</h4>
+        <p>${book.description || '暂无简介'}</p>
+      </div>
+      <div class="detail-actions">
+        ${book.available > 0
+          ? `<button class="btn btn-primary" onclick="borrowBook(${book.id}, '${book.title.replace(/'/g, "\\'")}')">📥 立即借阅</button>`
+          : `<button class="btn btn-outline" disabled>暂不可借</button>`}
+        <button class="btn btn-outline" onclick="history.back()">返回</button>
       </div>
     </div>
   `;
