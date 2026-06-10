@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>后台管理 - 仪表盘</title>
 <link rel="stylesheet" href="../css/style.css">
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 </head>
 <body>
 <div class="layout">
@@ -14,8 +15,8 @@
     <div class="main-content">
       <div class="stat-grid" id="statGrid"></div>
       <div style="display:grid;grid-template-columns:2fr 1fr;gap:20px;">
-        <div class="card"><div class="card-header"><h3>借阅趋势（近6月）</h3></div><div id="trendChart" style="height:280px;display:flex;align-items:flex-end;gap:12px;padding:10px 0;"></div></div>
-        <div class="card"><div class="card-header"><h3>图书分类分布</h3></div><div id="categoryChart" style="height:280px;"></div></div>
+        <div class="card"><div class="card-header"><h3>借阅趋势（近6月）</h3></div><canvas id="trendChart" height="280"></canvas></div>
+        <div class="card"><div class="card-header"><h3>图书分类分布</h3></div><canvas id="categoryChart" height="280"></canvas></div>
       </div>
     </div>
   </div>
@@ -26,42 +27,65 @@
 <script src="common.js"></script>
 <script>
 initAdmin();
+var trendChart, catChart;
 
 async function loadStats() {
   const stats = await API.stats.overview();
-  document.getElementById('statGrid').innerHTML = `
-    <div class="stat-card"><div class="stat-icon blue">📚</div><div class="stat-info"><div class="stat-value">${stats.totalBooks}</div><div class="stat-label">馆藏图书总数</div></div></div>
-    <div class="stat-card"><div class="stat-icon green">👥</div><div class="stat-info"><div class="stat-value">${stats.totalReaders}</div><div class="stat-label">注册读者数</div></div></div>
-    <div class="stat-card"><div class="stat-icon orange">📥</div><div class="stat-info"><div class="stat-value">${stats.borrowing}</div><div class="stat-label">当前借阅中</div></div></div>
-    <div class="stat-card"><div class="stat-icon red">⚠️</div><div class="stat-info"><div class="stat-value">${stats.overdue}</div><div class="stat-label">逾期未还</div></div></div>
-  `;
+  document.getElementById('statGrid').innerHTML =
+    '<div class="stat-card"><div class="stat-icon blue">📚</div><div class="stat-info"><div class="stat-value">' + stats.totalBooks + '</div><div class="stat-label">馆藏图书总数</div></div></div>' +
+    '<div class="stat-card"><div class="stat-icon green">👥</div><div class="stat-info"><div class="stat-value">' + stats.totalReaders + '</div><div class="stat-label">注册读者数</div></div></div>' +
+    '<div class="stat-card"><div class="stat-icon orange">📥</div><div class="stat-info"><div class="stat-value">' + stats.borrowing + '</div><div class="stat-label">当前借阅中</div></div></div>' +
+    '<div class="stat-card"><div class="stat-icon red">⚠️</div><div class="stat-info"><div class="stat-value">' + stats.overdue + '</div><div class="stat-label">逾期未还</div></div></div>';
   renderTrend(stats.borrowingTrend);
   renderCategory(stats.categoryDist);
 }
 
 function renderTrend(data) {
-  var max = Math.max.apply(null, data.map(function(d) { return d.count; }));
-  document.getElementById('trendChart').innerHTML = data.map(function(d) {
-    var px = max > 0 ? Math.round(d.count / max * 200) : 0;
-    return '<div style="flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;gap:8px;">' +
-      '<span style="font-weight:600;font-size:.9rem;">' + d.count + '</span>' +
-      '<div style="width:100%;max-width:50px;background:linear-gradient(to top,var(--primary),var(--primary-light));border-radius:6px 6px 0 0;height:' + px + 'px;min-height:6px;transition:.3s;"></div>' +
-      '<span style="font-size:.8rem;color:var(--text-secondary);">' + d.month + '</span>' +
-    '</div>';
-  }).join('');
+  if (trendChart) trendChart.destroy();
+  trendChart = new Chart(document.getElementById('trendChart'), {
+    type: 'bar',
+    data: {
+      labels: data.map(function(d) { return d.month; }),
+      datasets: [{
+        label: '借阅量',
+        data: data.map(function(d) { return d.count; }),
+        backgroundColor: ['#1a73e8','#4285f4','#669df6','#1a73e8','#4285f4','#669df6'],
+        borderRadius: 6,
+        maxBarThickness: 50
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: { legend: { display: false } },
+      scales: {
+        y: { beginAtZero: true, ticks: { stepSize: 5 } }
+      }
+    }
+  });
 }
 
 function renderCategory(data) {
-  const total = data.reduce((s, d) => s + d.value, 0);
-  const colors = ['#1a73e8','#0d904f','#f5a623','#d93025','#8e24aa','#00acc1'];
-  document.getElementById('categoryChart').innerHTML = data.map((d, i) => {
-    const pct = total > 0 ? (d.value / total * 100).toFixed(0) : 0;
-    return `<div style="display:flex;align-items:center;gap:8px;margin-bottom:12px;">
-      <span style="font-size:.85rem;min-width:40px;">${d.name}</span>
-      <div style="flex:1;background:#eee;border-radius:10px;height:20px;overflow:hidden;"><div style="width:${pct}%;height:100%;background:${colors[i]};border-radius:10px;transition:.3s;"></div></div>
-      <span style="font-size:.85rem;font-weight:600;min-width:36px;">${d.value}</span>
-    </div>`;
-  }).join('');
+  if (catChart) catChart.destroy();
+  var colors = ['#1a73e8','#0d904f','#f5a623','#d93025','#8e24aa','#00acc1','#6c757d','#20c997','#fd7e14','#6610f2'];
+  catChart = new Chart(document.getElementById('categoryChart'), {
+    type: 'doughnut',
+    data: {
+      labels: data.map(function(d) { return d.name; }),
+      datasets: [{
+        data: data.map(function(d) { return d.value; }),
+        backgroundColor: colors.slice(0, data.length),
+        borderWidth: 0
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: { position: 'right', labels: { padding: 16, usePointStyle: true } }
+      }
+    }
+  });
 }
 </script>
 </body>
