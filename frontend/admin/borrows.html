@@ -83,13 +83,6 @@ var expandedUsers = {};
 var urlParams = new URLSearchParams(location.search);
 var presetStatus = urlParams.get('status') || '';
 if (presetStatus === 'applying') currentTab = 'apply';
-if (presetStatus) {
-  setTimeout(function() {
-    var sf = document.getElementById('statusFilter');
-    sf.value = presetStatus;
-    loadBorrows();
-  }, 50);
-}
 
 document.getElementById('tabNav').addEventListener('click', function(e) {
   if (!e.target.dataset.tab) return;
@@ -100,7 +93,15 @@ document.getElementById('tabNav').addEventListener('click', function(e) {
   loadBorrows();
 });
 
-// 页面打开立即加载
+// 页面打开：应用预设筛选后加载
+if (presetStatus === 'applying') {
+  document.querySelector('.tab-btn[data-tab="apply"]').classList.add('active');
+  document.querySelector('.tab-btn[data-tab="all"]').classList.remove('active');
+  document.getElementById('tabAll').style.display = 'none';
+  document.getElementById('tabApply').style.display = '';
+} else if (presetStatus) {
+  document.getElementById('statusFilter').value = presetStatus;
+}
 loadBorrows();
 
 function loadBorrows() {
