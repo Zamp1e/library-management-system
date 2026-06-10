@@ -28,13 +28,13 @@ public class StatsController {
         data.put("returnedToday", 0);
 
         // 借阅趋势（近6月）
-        List<Map<String, String>> trend = Arrays.asList(
-            Map.of("month", "1月", "count", "12"),
-            Map.of("month", "2月", "count", "18"),
-            Map.of("month", "3月", "count", "25"),
-            Map.of("month", "4月", "count", "20"),
-            Map.of("month", "5月", "count", "32"),
-            Map.of("month", "6月", "count", "28"));
+        List<Map<String, Object>> trend = Arrays.asList(
+            Map.of("month", "1月", "count", 12),
+            Map.of("month", "2月", "count", 18),
+            Map.of("month", "3月", "count", 25),
+            Map.of("month", "4月", "count", 20),
+            Map.of("month", "5月", "count", 32),
+            Map.of("month", "6月", "count", 28));
         data.put("borrowingTrend", trend);
 
         // 分类分布
