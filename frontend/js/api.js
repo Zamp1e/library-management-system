@@ -1,8 +1,10 @@
 // ========== API 封装层 ==========
 // 当前为 Mock 模式，对接后端时修改 USE_MOCK = false 并配置 BASE_URL
 
-const USE_MOCK = false;
-const BASE_URL = 'http://localhost:8080/api';
+// 自动检测：GitHub Pages 用 Mock，本地连后端
+const isRemote = location.hostname.includes('github.io');
+const USE_MOCK = isRemote;
+const BASE_URL = isRemote ? '' : 'http://localhost:8080/api';
 
 async function request(method, url, data) {
   if (USE_MOCK) {
