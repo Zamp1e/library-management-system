@@ -5,6 +5,8 @@
 const isRemote = location.hostname.includes('github.io');
 const USE_MOCK = isRemote;
 const BASE_URL = isRemote ? '' : 'http://localhost:8080/api';
+// 管理端/读者端会话隔离：不同路径用不同 localStorage key
+const STORAGE_NS = location.pathname.includes('/admin/') ? 'admin_' : 'reader_';
 
 async function request(method, url, data) {
   if (USE_MOCK) {
@@ -19,11 +21,11 @@ async function request(method, url, data) {
     method,
     headers: { 'Content-Type': 'application/json' },
   };
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem(STORAGE_NS + 'token');
   if (token) opts.headers['Authorization'] = 'Bearer ' + token;
   if (data && method !== 'GET') opts.body = JSON.stringify(data);
   const res = await fetch(BASE_URL + url, opts);
-  if (res.status === 401) { localStorage.clear(); location.href = '../front/login.html'; return; }
+  if (res.status === 401) { localStorage.removeItem(STORAGE_NS + 'token'); localStorage.removeItem(STORAGE_NS + 'user'); location.href = location.pathname.includes('/admin/') ? 'login.html' : '../front/login.html'; return; }
   const json = await res.json();
   if (json.code !== 200) throw new Error(json.message || '请求失败');
   return json.data;

@@ -1,6 +1,6 @@
 // Admin common - sidebar, auth, toast
 function initAdmin() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = JSON.parse(localStorage.getItem('admin_user') || '{}');
   if (!user.id || user.role === 'reader') { location.href = 'login.html'; return; }
   const isSuperAdmin = user.role === 'super_admin';
   const path = location.pathname.split('/').pop();
@@ -31,7 +31,7 @@ function initAdmin() {
   if (typeof loadStats === 'function') loadStats();
 }
 
-function logout() { localStorage.clear(); location.href = 'login.html'; }
+function logout() { localStorage.removeItem('admin_token'); localStorage.removeItem('admin_user'); location.href = 'login.html'; }
 
 function showToast(msg, type) {
   const container = document.querySelector('.toast-container') || (() => { const c = document.createElement('div'); c.className = 'toast-container'; document.body.appendChild(c); return c; })();

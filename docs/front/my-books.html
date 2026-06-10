@@ -34,7 +34,7 @@
 <script src="../js/api.js"></script>
 <script>
 async function init() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = JSON.parse(localStorage.getItem('reader_user') || '{}');
   if (!user.id) { location.href = 'login.html'; return; }
   document.getElementById('userName').textContent = user.name || user.username;
   const res = await API.borrows.list({ userId: user.id });
@@ -74,7 +74,7 @@ function showToast(msg, type) {
   setTimeout(() => toast.remove(), 3000);
 }
 
-function logout() { localStorage.clear(); location.href = 'login.html'; }
+function logout() { localStorage.removeItem('reader_token'); localStorage.removeItem('reader_user'); location.href = 'login.html'; }
 init();
 </script>
 </body>

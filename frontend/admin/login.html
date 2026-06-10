@@ -34,8 +34,8 @@ document.getElementById('loginForm').addEventListener('submit', async function(e
   try {
     const res = await API.auth.login(username, password);
     if (res.user.role === 'reader') { showToast('读者账号无法登录后台', 'error'); return; }
-    localStorage.setItem('token', res.token);
-    localStorage.setItem('user', JSON.stringify(res.user));
+    localStorage.setItem('admin_token', res.token);
+    localStorage.setItem('admin_user', JSON.stringify(res.user));
     showToast('登录成功', 'success');
     setTimeout(() => location.href = 'index.html', 500);
   } catch (err) { showToast(err.message, 'error'); }

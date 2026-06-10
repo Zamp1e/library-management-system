@@ -53,7 +53,7 @@
 let currentPage = 1, pageSize = 10, allBooks = [];
 
 function init() {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = JSON.parse(localStorage.getItem('reader_user') || '{}');
   if (!user.id || user.role !== 'reader') { location.href = 'login.html'; return; }
   document.getElementById('userName').textContent = user.name || user.username;
   const cats = MOCK.categories;
@@ -114,7 +114,7 @@ function renderPagination() {
 function goPage(p) { currentPage = p; renderBooks(); window.scrollTo(0, 0); }
 
 async function borrowBook(bookId, title) {
-  const user = JSON.parse(localStorage.getItem('user') || '{}');
+  const user = JSON.parse(localStorage.getItem('reader_user') || '{}');
   const dueDate = new Date(Date.now() + 30 * 24 * 3600 * 1000).toISOString().slice(0, 10);
   try {
     await API.borrows.create({ bookId, userId: user.id, userName: user.name, dueDate });
@@ -130,7 +130,7 @@ function showToast(msg, type) {
   setTimeout(() => toast.remove(), 3000);
 }
 
-function logout() { localStorage.clear(); location.href = 'login.html'; }
+function logout() { localStorage.removeItem('reader_token'); localStorage.removeItem('reader_user'); location.href = 'login.html'; }
 
 init();
 </script>
