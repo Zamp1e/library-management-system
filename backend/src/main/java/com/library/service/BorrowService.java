@@ -104,7 +104,8 @@ public class BorrowService {
             book.setAvailable(Math.min(book.getTotal(), book.getAvailable() + 1));
             bookRepo.save(book);
         }
-        if ("returned".equals(status) && "borrowed".equals(b.getStatus())) {
+        if ("returned".equals(status) && ("borrowed".equals(b.getStatus()) || "applying".equals(b.getStatus()))) {
+            // 归还（无论原状态是borrowed还是applying）：还原库存
             book.setAvailable(Math.min(book.getTotal(), book.getAvailable() + 1));
             bookRepo.save(book);
             b.setReturnDate(LocalDate.now());

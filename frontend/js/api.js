@@ -134,8 +134,8 @@ function handleMock(method, url, data) {
           // 拒绝申请：还原库存
           book.available = Math.min(book.total, book.available + 1);
         }
-        if (data.status === 'returned' && oldStatus === 'borrowed' && book) {
-          // 归还：还原库存
+        if (data.status === 'returned' && (oldStatus === 'borrowed' || oldStatus === 'applying') && book) {
+          // 归还（无论原状态）：还原库存（申请时已扣过）
           book.available = Math.min(book.total, book.available + 1);
           M.borrows[idx].returnDate = new Date().toISOString().slice(0, 10);
         }
