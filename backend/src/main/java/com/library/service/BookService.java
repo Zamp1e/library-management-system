@@ -6,6 +6,14 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.*;
 
+/**
+ * 图书业务逻辑层
+ *
+ * 负责图书的增删改查及库存管理。
+ * 更新图书时支持两种库存调整方式：
+ * 1. 修改total时自动按差值调整available（防止直接操作库存）
+ * 2. 显式传入available时直接设置（用于管理员矫正异常库存）
+ */
 @Service
 public class BookService {
     private final BookRepository bookRepo;

@@ -1,11 +1,21 @@
-// ========== API 封装层 ==========
-// 当前为 Mock 模式，对接后端时修改 USE_MOCK = false 并配置 BASE_URL
+/**
+ * ========== API 封装层 ==========
+ *
+ * 前端数据层的核心模块，自动适配两种运行环境：
+ * 1. GitHub Pages 部署  → USE_MOCK = true  → Mock 内存数据 + localStorage 持久化
+ * 2. 本地开发 / 后端部署 → USE_MOCK = false → fetch 直连 http://localhost:8080/api
+ *
+ * 会话隔离设计：
+ * 管理端（/admin/）和读者端（/front/）使用不同的 localStorage 键名，
+ * 同一浏览器可同时登录两个账号互不干扰。
+ */
 
-// 自动检测：GitHub Pages 用 Mock，本地连后端
+// 根据域名自动判断运行环境
 const isRemote = location.hostname.includes('github.io');
 const USE_MOCK = isRemote;
 const BASE_URL = isRemote ? '' : 'http://localhost:8080/api';
-// 管理端/读者端会话隔离：不同路径用不同 localStorage key
+
+// admin_ 或 reader_ 前缀，实现管理端/读者端 session 隔离
 const STORAGE_NS = location.pathname.includes('/admin/') ? 'admin_' : 'reader_';
 
 async function request(method, url, data) {

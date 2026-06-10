@@ -3,6 +3,12 @@ package com.library.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+/**
+ * 用户实体类，映射 users 表
+ *
+ * 角色分级：super_admin（系统管理员，可管理其他管理员）> admin（管理员）> reader（读者）
+ * 密码通过 BCrypt 加密存储，status 为 0 时账号被禁用无法登录。
+ */
 @Entity
 @Table(name = "users")
 public class User {

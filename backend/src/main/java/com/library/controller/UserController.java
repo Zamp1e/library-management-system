@@ -5,6 +5,7 @@ import com.library.service.UserService;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
+/** 用户控制器：增删改查，支持 role/keyword 筛选，限制不可提升为超管或删除超管 */
 @RestController
 @RequestMapping("/api/users")
 public class UserController {

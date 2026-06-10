@@ -4,6 +4,12 @@ import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
+/**
+ * 图书实体类，映射 books 表
+ *
+ * total（馆藏总数）与 available（可借数量）的差值即为当前借出数量。
+ * available 由 BorrowService 的借阅/归还/拒绝操作动态维护。
+ */
 @Entity
 @Table(name = "books")
 public class Book {

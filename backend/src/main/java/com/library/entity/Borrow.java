@@ -3,6 +3,15 @@ package com.library.entity;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 
+/**
+ * 借阅记录实体类，映射 borrows 表
+ *
+ * 状态流转：applying（审核中）→ borrowed（借阅中）→ returned（已归还）
+ *                           ↘ rejected（已拒绝）
+ *
+ * bookTitle 和 userName 为 @Transient 字段，
+ * 不存入数据库，由 Service 层在查询时 JOIN 填充，用于前端展示。
+ */
 @Entity
 @Table(name = "borrows")
 public class Borrow {

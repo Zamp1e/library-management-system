@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDate;
 import java.util.*;
 
+/** 用户业务逻辑层：增删改查，密码 BCrypt 加密，禁止创建/升级为 super_admin */
 @Service
 public class UserService {
     private final UserRepository userRepo;

@@ -6,6 +6,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import java.util.*;
 
+/**
+ * 认证业务逻辑层
+ *
+ * 使用 BCrypt 验证密码，生成简单的 token（token-{userId}-{uuid8}）。
+ * 未集成 Spring Security 过滤器链，token 通过 Authorization header 传递。
+ * 不支持用户自主注册，新用户需由管理员创建。
+ */
 @Service
 public class AuthService {
     private final UserRepository userRepo;

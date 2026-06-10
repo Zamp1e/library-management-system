@@ -1,3 +1,4 @@
+// Mock 种子数据：4个用户、8本图书、6条借阅、10个分类；通过 localStorage 持久化修改
 const MOCK = {
   currentUser: null,
 

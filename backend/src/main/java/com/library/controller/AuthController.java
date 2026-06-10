@@ -4,6 +4,7 @@ import com.library.service.AuthService;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
+/** 认证控制器：处理登录验证和当前用户查询，不支持自主注册 */
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {

@@ -5,6 +5,7 @@ import com.library.service.BookService;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
+/** 图书控制器：图书增删改查，支持 keyword/category 筛选查询 */
 @RestController
 @RequestMapping("/api/books")
 public class BookController {

@@ -4,6 +4,7 @@ import com.library.service.BorrowService;
 import org.springframework.web.bind.annotation.*;
 import java.util.Map;
 
+/** 借阅控制器：读者申请借阅 + 管理员审批/拒绝/归还，库存由 Service 层 @Transactional 管理 */
 @RestController
 @RequestMapping("/api/borrows")
 public class BorrowController {

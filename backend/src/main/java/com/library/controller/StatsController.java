@@ -5,6 +5,7 @@ import com.library.entity.*;
 import org.springframework.web.bind.annotation.*;
 import java.util.*;
 
+/** 统计控制器：仪表盘数据总览——图书数/读者数/借阅中/逾期/趋势/分类分布 */
 @RestController
 @RequestMapping("/api/stats")
 public class StatsController {
