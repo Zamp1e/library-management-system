@@ -6,12 +6,12 @@
 <title>图书管理系统 - 首页</title>
 <link rel="stylesheet" href="../css/style.css">
 <style>
-.book-list { display: flex; flex-direction: column; gap: 2px; background: #e8eaed; border-radius: 8px; overflow: hidden; }
+.book-list { display: flex; flex-direction: column; gap: 2px; background: var(--border); border-radius: var(--radius-lg); overflow: hidden; }
 .book-row {
   display: flex; align-items: center; gap: 16px;
-  background: #fff; padding: 14px 18px;
+  background: var(--bg-card); padding: 14px 18px;
 }
-.book-row:hover { background: #fafbff; }
+.book-row:hover { background: #f8f9fd; }
 .book-main { flex: 1; min-width: 0; }
 .book-main h4 { font-size: .95rem; margin-bottom: 4px; }
 .book-main h4 a { color: var(--text); }
@@ -22,7 +22,7 @@
 .book-stock .lbl { font-size: .75rem; color: var(--text-secondary); }
 .book-actions { display: flex; flex-direction: column; gap: 6px; min-width: 72px; }
 .book-actions .btn { justify-content: center; }
-.empty-row { background: #fff; padding: 40px; }
+.empty-row { background: var(--bg-card); padding: 40px; }
 </style>
 </head>
 <body>
